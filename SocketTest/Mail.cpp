@@ -4,12 +4,12 @@ std::string Mail::AllOfMailContent(std::string MyMail)
 {
 	{
 		std::string mailContent = "From: " + MyMail + "\n";
-		mailContent += "To: " + _To + "\n";
-		mailContent += "Cc: " + _CC + "\n";
-		mailContent += "Bcc: " + _BCC + "\n";
-		mailContent += "Subject: " + _Subject + "\n";
+		mailContent += "To: " + m_To + "\n";
+		mailContent += "Cc: " + m_CC + "\n";
+		mailContent += "Bcc: " + m_BCC + "\n";
+		mailContent += "Subject: " + m_Subject + "\n";
 		mailContent += "\n\n";
-		mailContent += _TextBody + "\n\n";
+		mailContent += m_TextBody + "\n\n";
 
 		//sending the attachment 
 

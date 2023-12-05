@@ -36,4 +36,4 @@ public:
 	bool isOk(std::string serverResponse);
 	bool login(const char* IP, int PORT, std::string username, std::string password);
 	std::vector<Mail> reciveMail();
-}
+};
