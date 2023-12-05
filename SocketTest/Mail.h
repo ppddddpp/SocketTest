@@ -22,11 +22,11 @@ public:
 
 class Mail {
 private:
-	std::string& m_To;
-	std::string& m_CC;
-	std::string& m_BCC;
-	std::string& m_Subject;
-	std::string& m_TextBody;
+	std::string m_To;
+	std::string m_CC;
+	std::string m_BCC;
+	std::string m_Subject;
+	std::string m_TextBody;
 	std::vector<Attachment> m_attachments;
 public:
 	std::string getTo() {

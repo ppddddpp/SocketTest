@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MySocket
-#define MySocket
-#include "Mail.h"
+#ifndef SocketFunctions
+#define SocketFunctions
+#include "MailWorking.h"
 
 #endif

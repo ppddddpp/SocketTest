@@ -46,7 +46,7 @@ void MySocket::disconnectServer()
 void MySocket::sendCommand(std::string command)
 {
 	const char* CommandNeedToSend = command.c_str();
-	send(m_socket, CommandNeedToSend, strlen(CommandNeedToSend) - 1, 0);
+	send(m_socket, CommandNeedToSend, strlen(CommandNeedToSend), 0);
 }
 
 std::string MySocket::receiveServerResponse()
@@ -120,8 +120,13 @@ bool SMTP::login(const char* IP, int PORT, std::string username, std::string pas
 		return false;
 	}
 	std::string serverResponse;
+	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+	if (serverResponse.substr(0, 3) != "220") {
+		std::cerr << "Server no response" << std::endl;
+		return false;
+	}
 	//Working with EHLO
-	std::string domain = "one.com"; // one should be exchange to the testing domain
+	std::string domain = "[127.0.0.1]"; // one should be exchange to the testing domain
 	std::string ehloCommand = "EHLO " + domain + "\r\n";
 	m_SMTP_SOCKET.sendCommand(ehloCommand);
 
@@ -131,26 +136,26 @@ bool SMTP::login(const char* IP, int PORT, std::string username, std::string pas
 		return false;
 	}
 	
-	m_SMTP_SOCKET.sendCommand("AUTH LOGIN\r\n");
-	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-	if (serverResponse.substr(0, 3) != "334") {
-		std::cerr << "Server does not support LOGIN authentication" << std::endl;
-		return false;
-	}
+	//m_SMTP_SOCKET.sendCommand("AUTH LOGIN\r\n");
+	//serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+	//if (serverResponse.substr(0, 3) != "334") {
+	//	std::cerr << "Server does not support LOGIN authentication" << std::endl;
+	//	return false;
+	//}
 
-	m_SMTP_SOCKET.sendCommand(to_base64(username) + "\r\n");
-	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-	if (serverResponse.substr(0, 3) != "235") {
-		std::cerr << "Wrong username" << std::endl;
-		return false;
-	}
+	//m_SMTP_SOCKET.sendCommand(to_base64(username) + "\r\n");
+	//serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+	//if (serverResponse.substr(0, 3) != "235") {
+	//	std::cerr << "Wrong username" << std::endl;
+	//	return false;
+	//}
 
-	m_SMTP_SOCKET.sendCommand(to_base64(password) + "\r\n");
-	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-	if (serverResponse.substr(0, 3) != "235") {
-		std::cerr << "Wrong password" << std::endl;
-		return false;
-	}
+	//m_SMTP_SOCKET.sendCommand(to_base64(password) + "\r\n");
+	//serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+	//if (serverResponse.substr(0, 3) != "235") {
+	//	std::cerr << "Wrong password" << std::endl;
+	//	return false;
+	//}
 
 
 	return true;
@@ -158,7 +163,7 @@ bool SMTP::login(const char* IP, int PORT, std::string username, std::string pas
 
 void SMTP::sendMail(Mail mail)
 {
-	std::string ThingToSend;
+	std::string ThingToSend = mail.getTextBody();
 	//edit the string to send
 	m_SMTP_SOCKET.sendCommand(ThingToSend);
 }

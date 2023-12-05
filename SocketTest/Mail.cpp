@@ -1,5 +1,10 @@
 #include "Mail.h"
 
+Mail::Mail()
+{
+	m_TextBody = "Hello";
+}
+
 std::string Mail::AllOfMailContent(std::string MyMail)
 {
 	{
