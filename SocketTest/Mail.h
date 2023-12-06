@@ -37,6 +37,9 @@ public:
 	int sizeofBCC();
 	size_t getSizeOfAttachments();
 public:
+	std::string to_base64(std::vector<uint8_t>& data);
+	Mail toMailFormmat(std::string data);
+	std::string getAllMailData();
 	std::vector<uint8_t> readAttachmentFileContent(std::string filename);
 	void addAttachment(std::string& filename);
 };

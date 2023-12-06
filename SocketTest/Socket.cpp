@@ -68,51 +68,6 @@ std::string MySocket::receiveServerResponse()
 #pragma endregion MySocket
 
 #pragma region SMTP
-std::string SMTP::to_base64(std::vector<uint8_t>& data)
-{
-	const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-	std::string ouStr;
-	size_t i = 0;
-
-	while (i < data.size()) {
-		uint32_t octet_1 = 0;
-		uint32_t octet_2 = 0;
-		uint32_t octet_3 = 0;
-
-		if (i < data.size()) {
-			octet_1 = static_cast<uint8_t>(data[i++]);
-		}
-
-		if (i < data.size()) {
-			octet_2 = static_cast<uint8_t>(data[i++]);
-		}
-
-		if (i < data.size()) {
-			octet_3 = static_cast<uint8_t>(data[i++]);
-		}
-
-		uint32_t triple = (octet_1 << 16) + (octet_2 << 8) + octet_3;
-
-		ouStr.push_back(base64_chars[(triple >> 18) & 0x3F]);
-		ouStr.push_back(base64_chars[(triple >> 12) & 0x3F]);
-
-		if (i > data.size() + 1) {
-			ouStr.push_back('=');
-		}
-		else {
-			ouStr.push_back(base64_chars[(triple >> 6) & 0x3F]);
-		}
-
-		if (i > data.size()) {
-			ouStr.push_back('=');
-		}
-		else {
-			ouStr.push_back(base64_chars[triple & 0x3F]);
-		}
-	}
-	return ouStr;
-}
 
 bool SMTP::login(const char* IP, int PORT, User person)
 {
@@ -173,58 +128,44 @@ void SMTP::sendMail(Mail mail)
 
 	}
 
+	std::string receiverMail = "";
 	for (int i = 0; i < mail.sizeofTo(); i++) {
-		std::string receiverMail = mail.getTo(i);
+		receiverMail += mail.getTo(i);
+	}
+	m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
+	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+	if (serverResponse != "250") {
+		std::cout << "Cannot send TO";
+	}
+
+	receiverMail = "";
+	for (int i = 0; i < mail.sizeofCC(); i++) {
+		receiverMail = mail.getCC(i);
+	}
+	m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
+	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+	if (serverResponse != "250") {
+		std::cout << "Cannot send CC";
+	}
+
+	receiverMail = "";
+	for (int i = 0; i < mail.sizeofBCC(); i++) {
+		receiverMail = mail.getBCC(i);
 		m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
 		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 		if (serverResponse != "250") {
-
+			std::cout << "Cannot send BCC";
 		}
 	}
 	
-	for (int i = 0; i < mail.sizeofCC(); i++) {
-		std::string receiverMail = mail.getCC(i);
-		m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
-		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-		if (serverResponse != "250") {
-
-		}
-	}
-
-	for (int i = 0; i < mail.sizeofBCC(); i++) {
-		std::string receiverMail = mail.getBCC(i);
-		m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
-		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-		if (serverResponse != "250") {
-
-		}
-	}
-
 	m_SMTP_SOCKET.sendCommand("DATA\r\n");
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 	if (serverResponse.substr(0, 3) != "354") {
 		std::cout << "Data send comment error ";
 	}
 
-	std::string ThingToSend = "";
-	//edit the string to send: 
-	ThingToSend += mail.getSubject();
-	ThingToSend += '\n\n\n';
-	ThingToSend += mail.getTextBody();
-
+	std::string ThingToSend = mail.getAllMailData();
 	m_SMTP_SOCKET.sendCommand(ThingToSend);
-	//send attachment:
-	//should adding method that make a flag for this function below run
-
-	std::string attachmentFileName = "random.txt";
-	mail.addAttachment(attachmentFileName);
-
-	//send attachments
-	for (int i = 0; i < mail.getSizeOfAttachments(); i++) {
-		std::vector<uint8_t>tempAttachment = mail.getAttachment(i);
-		std::string AttachmentAsStr = to_base64(tempAttachment);
-		m_SMTP_SOCKET.sendCommand(AttachmentAsStr);
-	}
 
 	std::string EndMailDot = ".";
 	m_SMTP_SOCKET.sendCommand(EndMailDot);
@@ -283,10 +224,26 @@ bool POP3::login(const char* IP, int PORT, User person)
 	return true;
 }
 
-std::vector<Mail> POP3::receiveMail()
+bool POP3::IsExistedMail(std::string data, User person)
 {
-	std::vector<Mail> listMail;
-	return listMail;
+	for (int i = 0; i < person.getSizeOfListMail(); i++) {
+		if(data==person[i].getAllMailData())
+		return true;
+	}
+	return false;
 }
+
+void POP3::receiveMail(User& person)
+{
+	std::vector<Mail> listMailReceive;
+
+	for (int i = 0; i < listMailReceive.size(); i++) {
+		if (IsExistedMail(listMailReceive[i].getAllMailData(),person) == false) {
+			person.addMailToList(listMailReceive[i]);
+		}
+	}
+	
+}
+
 
 #pragma endregion POP3

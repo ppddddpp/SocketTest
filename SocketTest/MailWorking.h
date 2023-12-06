@@ -8,6 +8,6 @@ protected:
 	POP3 p_POP3_Client;
 public:
 	bool sendMail(const char* IP, int PORT, User person, Mail mail);
-	bool receiveMail(const char* IP, int PORT,User person);
+	bool receiveMail(const char* IP, int PORT,User& person);
 };
 

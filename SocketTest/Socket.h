@@ -35,5 +35,6 @@ private:
 public:
 	bool isOk(std::string serverResponse);
 	bool login(const char* IP, int PORT, User person);
-	std::vector<Mail> receiveMail();
+	bool IsExistedMail(std::string data, User person);
+	void receiveMail(User& person);
 };

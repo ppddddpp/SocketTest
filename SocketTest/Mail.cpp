@@ -77,6 +77,26 @@ size_t Mail::getSizeOfAttachments()
 	return m_attachments.size();
 }
 
+std::string Mail::getAllMailData()
+{
+	std::string ThingToSend;
+	//edit the string to send: 
+	ThingToSend += getSubject();
+	ThingToSend += '\n\n\n';
+	ThingToSend += getTextBody();
+
+	//this send method should reconsider ?
+	//send attachments
+	std::string AttachmentAsStr = "";
+	for (int i = 0; i < getSizeOfAttachments(); i++) {
+		std::vector<uint8_t>tempAttachment = getAttachment(i);
+		AttachmentAsStr = to_base64(tempAttachment);
+		AttachmentAsStr += "[ENDOFATTACHMENT]";
+	}
+	ThingToSend += AttachmentAsStr;
+	return ThingToSend;
+}
+
 std::vector<uint8_t> Mail::readAttachmentFileContent(std::string filename)
 {
 	std::ifstream infileName(filename, std::ios::binary);
@@ -94,6 +114,59 @@ void Mail::addAttachment(std::string& filename)
 {
 	std::vector<uint8_t> fileContents = readAttachmentFileContent(filename);
 	m_attachments.emplace_back(filename, fileContents);
+}
+
+std::string Mail::to_base64(std::vector<uint8_t>& data)
+{
+	const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+	std::string ouStr;
+	size_t i = 0;
+
+	while (i < data.size()) {
+		uint32_t octet_1 = 0;
+		uint32_t octet_2 = 0;
+		uint32_t octet_3 = 0;
+
+		if (i < data.size()) {
+			octet_1 = static_cast<uint8_t>(data[i++]);
+		}
+
+		if (i < data.size()) {
+			octet_2 = static_cast<uint8_t>(data[i++]);
+		}
+
+		if (i < data.size()) {
+			octet_3 = static_cast<uint8_t>(data[i++]);
+		}
+
+		uint32_t triple = (octet_1 << 16) + (octet_2 << 8) + octet_3;
+
+		ouStr.push_back(base64_chars[(triple >> 18) & 0x3F]);
+		ouStr.push_back(base64_chars[(triple >> 12) & 0x3F]);
+
+		if (i > data.size() + 1) {
+			ouStr.push_back('=');
+		}
+		else {
+			ouStr.push_back(base64_chars[(triple >> 6) & 0x3F]);
+		}
+
+		if (i > data.size()) {
+			ouStr.push_back('=');
+		}
+		else {
+			ouStr.push_back(base64_chars[triple & 0x3F]);
+		}
+	}
+	return ouStr;
+}
+
+Mail Mail::toMailFormmat(std::string data)
+{
+	//may be need this
+	Mail newMail;
+	return newMail;
 }
 
 #pragma endregion Mail
