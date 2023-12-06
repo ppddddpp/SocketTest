@@ -34,6 +34,7 @@ public:
 	int getAutoLoad();
 	int getSizeOfListMail();
 public:
+	void openMail(Mail mail);
 	User(std::string filename);
 	Mail operator[](int num) {
 		return m_ListOfMail[num];

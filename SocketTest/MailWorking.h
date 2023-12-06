@@ -1,8 +1,11 @@
 #pragma once
 #include "Socket.h"
 
+
 class MailWorking
 {
+private:
+
 protected:
 	SMTP p_SMTP_Client;
 	POP3 p_POP3_Client;

@@ -77,6 +77,16 @@ size_t Mail::getSizeOfAttachments()
 	return m_attachments.size();
 }
 
+void Mail::setAsRead()
+{
+	m_hadRead = true;
+}
+
+void Mail::setAsUnread()
+{
+	m_hadRead = false;
+}
+
 std::string Mail::getAllMailData()
 {
 	std::string ThingToSend;
@@ -101,10 +111,18 @@ std::vector<uint8_t> Mail::readAttachmentFileContent(std::string filename)
 {
 	std::ifstream infileName(filename, std::ios::binary);
 	if (!infileName.is_open()) {
-		std::cout << "Cannot open file";
-		return {};
-		// may using the std::exception later 
+		throw std::runtime_error("Cannot open file: " + filename);
 	}
+
+	infileName.seekg(0, std::ios::end);
+	std::size_t fileSize = infileName.tellg();
+	infileName.seekg(0, std::ios::beg);
+
+	int maxSize = 3 * 1024 * 1024;
+	if (fileSize > maxSize) {
+		throw std::runtime_error("Attachment file size exceeds the allowed limit");
+	}
+
 	std::vector<uint8_t> fileContents((std::istreambuf_iterator<char>(infileName)),
 		std::istreambuf_iterator<char>());
 	return fileContents;

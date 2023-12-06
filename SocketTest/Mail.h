@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <exception>
 
 class Attachment {
 private:
@@ -24,6 +25,7 @@ private:
 	std::string m_Subject;
 	std::string m_TextBody;
 	std::vector<Attachment> m_attachments;
+	bool m_hadRead;
 public:
 	std::string getTo(int num);
 	std::string getCC(int num);
@@ -36,6 +38,8 @@ public:
 	int sizeofCC();
 	int sizeofBCC();
 	size_t getSizeOfAttachments();
+	void setAsRead();
+	void setAsUnread();
 public:
 	std::string to_base64(std::vector<uint8_t>& data);
 	Mail toMailFormmat(std::string data);

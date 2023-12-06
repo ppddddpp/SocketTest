@@ -80,9 +80,17 @@ int User::getSizeOfListMail()
 	return m_ListOfMail.size();
 }
 
+void User::openMail(Mail mail)
+{
+	//function to output all mail details
+
+	//set as read
+	mail.setAsRead();
+}
+
 User::User(std::string filename)
 {
-
+	
 }
 
 
