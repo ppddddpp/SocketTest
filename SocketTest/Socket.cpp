@@ -68,28 +68,28 @@ std::string MySocket::receiveServerResponse()
 #pragma endregion MySocket
 
 #pragma region SMTP
-std::string SMTP::to_base64(std::string inStr)
+std::string SMTP::to_base64(std::vector<uint8_t>& data)
 {
 	const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 	std::string ouStr;
 	size_t i = 0;
 
-	while (i < inStr.size()) {
+	while (i < data.size()) {
 		uint32_t octet_1 = 0;
 		uint32_t octet_2 = 0;
 		uint32_t octet_3 = 0;
 
-		if (i < inStr.size()) {
-			octet_1 = static_cast<uint8_t>(inStr[i++]);
+		if (i < data.size()) {
+			octet_1 = static_cast<uint8_t>(data[i++]);
 		}
 
-		if (i < inStr.size()) {
-			octet_2 = static_cast<uint8_t>(inStr[i++]);
+		if (i < data.size()) {
+			octet_2 = static_cast<uint8_t>(data[i++]);
 		}
 
-		if (i < inStr.size()) {
-			octet_3 = static_cast<uint8_t>(inStr[i++]);
+		if (i < data.size()) {
+			octet_3 = static_cast<uint8_t>(data[i++]);
 		}
 
 		uint32_t triple = (octet_1 << 16) + (octet_2 << 8) + octet_3;
@@ -97,14 +97,14 @@ std::string SMTP::to_base64(std::string inStr)
 		ouStr.push_back(base64_chars[(triple >> 18) & 0x3F]);
 		ouStr.push_back(base64_chars[(triple >> 12) & 0x3F]);
 
-		if (i > inStr.size() + 1) {
+		if (i > data.size() + 1) {
 			ouStr.push_back('=');
 		}
 		else {
 			ouStr.push_back(base64_chars[(triple >> 6) & 0x3F]);
 		}
 
-		if (i > inStr.size()) {
+		if (i > data.size()) {
 			ouStr.push_back('=');
 		}
 		else {
@@ -145,12 +145,12 @@ bool SMTP::login(const char* IP, int PORT, User person)
 	}
 	
 	if (!LoginAUTHNeeding) {
-		m_SMTP_SOCKET.sendCommand(to_base64(person.getUsername()) + "\r\n");
+		m_SMTP_SOCKET.sendCommand(person.getUsername() + "\r\n");
 		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 		if (serverResponse.substr(0, 3) != "235") { //334
 			std::cerr << "Wrong username" << std::endl;
 		}
-		m_SMTP_SOCKET.sendCommand(to_base64(person.getPassword()) + "\r\n");
+		m_SMTP_SOCKET.sendCommand(person.getPassword() + "\r\n");
 		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 		if (serverResponse.substr(0, 3) != "235") { //334
 			std::cerr << "Wrong password" << std::endl;
@@ -214,7 +214,17 @@ void SMTP::sendMail(Mail mail)
 
 	m_SMTP_SOCKET.sendCommand(ThingToSend);
 	//send attachment:
+	//should adding method that make a flag for this function below run
 
+	std::string attachmentFileName = "random.txt";
+	mail.addAttachment(attachmentFileName);
+
+	//send attachments
+	for (int i = 0; i < mail.getSizeOfAttachments(); i++) {
+		std::vector<uint8_t>tempAttachment = mail.getAttachment(i);
+		std::string AttachmentAsStr = to_base64(tempAttachment);
+		m_SMTP_SOCKET.sendCommand(AttachmentAsStr);
+	}
 
 	std::string EndMailDot = ".";
 	m_SMTP_SOCKET.sendCommand(EndMailDot);

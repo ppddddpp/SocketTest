@@ -1,23 +1,19 @@
 #pragma once
+#include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 class Attachment {
 private:
 	std::string m_filename;
 	std::vector<uint8_t> m_inFileContent;
 public:
-	std::string getFilename() {
-		return m_filename;
-	}
-	const std::vector<uint8_t>& getInFileContent() {
-		return m_inFileContent;
-	}
-	std::size_t getSizeOfFile() {
-		return m_inFileContent.size();
-	}
+	std::string getFilename();
+	std::vector<uint8_t>& getInFileContent();
+	std::size_t getSizeOfFile();
 public:
-	Attachment();
+	Attachment(std::string filename,std::vector<uint8_t> fileContent);
 };
 
 class Mail {
@@ -29,37 +25,19 @@ private:
 	std::string m_TextBody;
 	std::vector<Attachment> m_attachments;
 public:
-	std::string getTo(int num) {
-		return m_To[num];
-	}
-	std::string getCC(int num) {
-		return m_CC[num];
-	}
-	std::string getBCC(int num) {
-		return m_BCC[num];
-	}
-	std::string getSubject() {
-		return m_Subject;
-	}
-	std::string getTextBody() {
-		return m_TextBody;
-	}
-	int sizeofTo() {
-		return m_To.size();
-	}
-	int sizeofCC() {
-		return m_CC.size();
-	}
-	int sizeofBCC() {
-		return m_BCC.size();
-	}
-	size_t getSizeOfAttachments() {
-		return m_attachments.size();
-	}
-
+	std::string getTo(int num);
+	std::string getCC(int num);
+	std::string getBCC(int num);
+	std::string getSubject();
+	std::string getTextBody();
+	std::vector<uint8_t> getAttachment(int num);
 public:
-	Mail();
-	void addAttachment(const std::string& filename, const std::vector<uint8_t>& content);
-	std::string AllOfMailContent(std::string MyMail);
+	int sizeofTo();
+	int sizeofCC();
+	int sizeofBCC();
+	size_t getSizeOfAttachments();
+public:
+	std::vector<uint8_t> readAttachmentFileContent(std::string filename);
+	void addAttachment(std::string& filename);
 };
 
