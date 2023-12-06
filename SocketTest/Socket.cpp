@@ -114,7 +114,7 @@ std::string SMTP::to_base64(std::string inStr)
 	return ouStr;
 }
 
-bool SMTP::login(const char* IP, int PORT, std::string username, std::string password)
+bool SMTP::login(const char* IP, int PORT, User person)
 {
 	if (!m_SMTP_SOCKET.connectTo(IP,PORT)) {
 		return false;
@@ -136,36 +136,100 @@ bool SMTP::login(const char* IP, int PORT, std::string username, std::string pas
 		return false;
 	}
 	
-	//m_SMTP_SOCKET.sendCommand("AUTH LOGIN\r\n");
-	//serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-	//if (serverResponse.substr(0, 3) != "334") {
-	//	std::cerr << "Server does not support LOGIN authentication" << std::endl;
-	//	return false;
-	//}
-
-	//m_SMTP_SOCKET.sendCommand(to_base64(username) + "\r\n");
-	//serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-	//if (serverResponse.substr(0, 3) != "235") {
-	//	std::cerr << "Wrong username" << std::endl;
-	//	return false;
-	//}
-
-	//m_SMTP_SOCKET.sendCommand(to_base64(password) + "\r\n");
-	//serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-	//if (serverResponse.substr(0, 3) != "235") {
-	//	std::cerr << "Wrong password" << std::endl;
-	//	return false;
-	//}
-
-
+	bool LoginAUTHNeeding = true;
+	m_SMTP_SOCKET.sendCommand("AUTH LOGIN\r\n");
+	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+	if (serverResponse.substr(0, 3) != "500") {
+		std::cerr << "Server does not support LOGIN authentication" << std::endl;
+		LoginAUTHNeeding = false;
+	}
+	
+	if (!LoginAUTHNeeding) {
+		m_SMTP_SOCKET.sendCommand(to_base64(person.getUsername()) + "\r\n");
+		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+		if (serverResponse.substr(0, 3) != "235") { //334
+			std::cerr << "Wrong username" << std::endl;
+		}
+		m_SMTP_SOCKET.sendCommand(to_base64(person.getPassword()) + "\r\n");
+		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+		if (serverResponse.substr(0, 3) != "235") { //334
+			std::cerr << "Wrong password" << std::endl;
+		}
+		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+		if (serverResponse.substr(0, 3) != "250") { //220
+			std::cerr << "Server response error" << std::endl;
+		}
+	}
 	return true;
 }
 
 void SMTP::sendMail(Mail mail)
-{
-	std::string ThingToSend = mail.getTextBody();
-	//edit the string to send
+{	
+	std::string serverResponse;
+	std::string senderMail = "sender@test.com";
+	m_SMTP_SOCKET.sendCommand("MAIL FROM: " + senderMail + "\r\n");
+	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+	if (serverResponse != "250") {
+
+	}
+
+	for (int i = 0; i < mail.sizeofTo(); i++) {
+		std::string receiverMail = mail.getTo(i);
+		m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
+		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+		if (serverResponse != "250") {
+
+		}
+	}
+	
+	for (int i = 0; i < mail.sizeofCC(); i++) {
+		std::string receiverMail = mail.getCC(i);
+		m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
+		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+		if (serverResponse != "250") {
+
+		}
+	}
+
+	for (int i = 0; i < mail.sizeofBCC(); i++) {
+		std::string receiverMail = mail.getBCC(i);
+		m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
+		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+		if (serverResponse != "250") {
+
+		}
+	}
+
+	m_SMTP_SOCKET.sendCommand("DATA\r\n");
+	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+	if (serverResponse.substr(0, 3) != "354") {
+		std::cout << "Data send comment error ";
+	}
+
+	std::string ThingToSend = "";
+	//edit the string to send: 
+	ThingToSend += mail.getSubject();
+	ThingToSend += '\n\n\n';
+	ThingToSend += mail.getTextBody();
+
 	m_SMTP_SOCKET.sendCommand(ThingToSend);
+	//send attachment:
+
+
+	std::string EndMailDot = ".";
+	m_SMTP_SOCKET.sendCommand(EndMailDot);
+	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+	if (serverResponse.substr(0, 3) != "250") {
+		std::cout << "Send unsuccessful";
+	}
+	std::cout << "Send successful";
+
+	m_SMTP_SOCKET.sendCommand("QUIT");
+	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+	if (serverResponse.substr(0, 3) == "221") {
+		std::cout << "Quitted server";
+	}
+	return;
 }
 
 #pragma endregion SMTP
@@ -180,7 +244,7 @@ bool POP3::isOk(std::string serverResponse)
 	return false;
 }
 
-bool POP3::login(const char* IP, int PORT, std::string username, std::string password)
+bool POP3::login(const char* IP, int PORT, User person)
 {
 	if (!m_POP3_SOCKET.connectTo(IP, PORT)) {
 		return false;
@@ -192,15 +256,15 @@ bool POP3::login(const char* IP, int PORT, std::string username, std::string pas
 		std::cout << "Server is not ready yet";
 		return false;
 	}
-
-	m_POP3_SOCKET.sendCommand("USER " + username + "\r\n");
+	
+	m_POP3_SOCKET.sendCommand("USER " + person.getUsername() + "\r\n");
 	serverResponse = m_POP3_SOCKET.receiveServerResponse();
 	if (isOk(serverResponse) == false) {
 		std::cout << "Wrong username";
 		return false;
 	}
 
-	m_POP3_SOCKET.sendCommand("USER " + password + "\r\n");
+	m_POP3_SOCKET.sendCommand("PASS " + person.getPassword() + "\r\n");
 	serverResponse = m_POP3_SOCKET.receiveServerResponse();
 	if (isOk(serverResponse) == false) {
 		std::cout << "Wrong password";
@@ -209,7 +273,7 @@ bool POP3::login(const char* IP, int PORT, std::string username, std::string pas
 	return true;
 }
 
-std::vector<Mail> POP3::reciveMail()
+std::vector<Mail> POP3::receiveMail()
 {
 	std::vector<Mail> listMail;
 	return listMail;

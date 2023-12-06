@@ -22,27 +22,36 @@ public:
 
 class Mail {
 private:
-	std::string m_To;
-	std::string m_CC;
-	std::string m_BCC;
+	std::vector<std::string> m_To;
+	std::vector<std::string> m_CC;
+	std::vector<std::string> m_BCC;
 	std::string m_Subject;
 	std::string m_TextBody;
 	std::vector<Attachment> m_attachments;
 public:
-	std::string getTo() {
-		return m_To;
+	std::string getTo(int num) {
+		return m_To[num];
 	}
-	std::string getCC() {
-		return m_CC;
+	std::string getCC(int num) {
+		return m_CC[num];
 	}
-	std::string getBCC() {
-		return m_BCC;
+	std::string getBCC(int num) {
+		return m_BCC[num];
 	}
 	std::string getSubject() {
 		return m_Subject;
 	}
 	std::string getTextBody() {
 		return m_TextBody;
+	}
+	int sizeofTo() {
+		return m_To.size();
+	}
+	int sizeofCC() {
+		return m_CC.size();
+	}
+	int sizeofBCC() {
+		return m_BCC.size();
 	}
 	size_t getSizeOfAttachments() {
 		return m_attachments.size();

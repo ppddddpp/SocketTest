@@ -1,7 +1,7 @@
 #pragma once
 #include <winsock.h>
 #include <iostream>
-#include "Mail.h"
+#include "Users.h"
 
 class MySocket
 {
@@ -24,7 +24,7 @@ private:
 protected:
 	std::string to_base64(std::string inStr);
 public:
-	bool login(const char* IP, int PORT, std::string username, std::string password);
+	bool login(const char* IP, int PORT, User person);
 	void sendMail(Mail mail);
 };
 
@@ -34,6 +34,6 @@ private:
 	MySocket m_POP3_SOCKET;
 public:
 	bool isOk(std::string serverResponse);
-	bool login(const char* IP, int PORT, std::string username, std::string password);
-	std::vector<Mail> reciveMail();
+	bool login(const char* IP, int PORT, User person);
+	std::vector<Mail> receiveMail();
 };
