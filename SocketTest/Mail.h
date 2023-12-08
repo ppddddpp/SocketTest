@@ -34,6 +34,7 @@ public:
 	std::string getTextBody();
 	std::vector<uint8_t> getAttachment(int num);
 public:
+	void setbaseUnread();
 	int sizeofTo();
 	int sizeofCC();
 	int sizeofBCC();

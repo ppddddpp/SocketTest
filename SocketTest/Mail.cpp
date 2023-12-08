@@ -57,6 +57,11 @@ std::vector<uint8_t> Mail::getAttachment(int num)
 	return m_attachments[num].getInFileContent();
 }
 
+void Mail::setbaseUnread()
+{
+	m_hadRead = false;
+}
+
 int Mail::sizeofTo()
 {
 	return m_To.size();
