@@ -102,11 +102,11 @@ std::string Mail::getAllMailData()
 
 	//this send method should reconsider ?
 	//send attachments
-	std::string AttachmentAsStr = "";
+	std::string AttachmentAsStr = " [STARTOFATTACHMENT] ";
 	for (int i = 0; i < getSizeOfAttachments(); i++) {
 		std::vector<uint8_t>tempAttachment = getAttachment(i);
 		AttachmentAsStr = to_base64(tempAttachment);
-		AttachmentAsStr += "[ENDOFATTACHMENT]";
+		AttachmentAsStr += " [ENDOFATTACHMENT] ";
 	}
 	ThingToSend += AttachmentAsStr;
 	return ThingToSend;
