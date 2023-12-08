@@ -120,6 +120,7 @@ bool SMTP::login(const char* IP, int PORT, User person)
 
 void SMTP::sendMail(Mail mail)
 {	
+	mail.setbaseUnread();
 	std::string serverResponse;
 	std::string senderMail = "sender@test.com";
 	m_SMTP_SOCKET.sendCommand("MAIL FROM: " + senderMail + "\r\n");
