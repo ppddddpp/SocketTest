@@ -87,9 +87,14 @@ void Mail::setAsUnread()
 	m_hadRead = false;
 }
 
+void Mail::setBodyText(std::string data)
+{
+	m_TextBody = "hello";
+}
+
 std::string Mail::getAllMailData()
 {
-	std::string ThingToSend;
+	std::string ThingToSend = "a";
 	//edit the string to send: 
 	ThingToSend += getSubject();
 	ThingToSend += '\n\n\n';
@@ -132,6 +137,12 @@ void Mail::addAttachment(std::string& filename)
 {
 	std::vector<uint8_t> fileContents = readAttachmentFileContent(filename);
 	m_attachments.emplace_back(filename, fileContents);
+}
+
+Mail::Mail()
+{
+	std::string data;
+	setBodyText(data);
 }
 
 std::string Mail::to_base64(std::vector<uint8_t>& data)

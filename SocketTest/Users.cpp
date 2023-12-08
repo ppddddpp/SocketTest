@@ -90,7 +90,39 @@ void User::openMail(Mail mail)
 
 User::User(std::string filename)
 {
-	
+	std::ifstream in(filename);
+	std::string buffer;
+
+	// General
+	std::getline(in, buffer);
+	// ???
+
+	// Username
+	std::getline(in, buffer);
+	setUsername(buffer.substr(buffer.find(':') + 1, buffer.find('<') - buffer.find(':') - 1));
+
+	// UserMail
+	setUserMail(buffer.substr(buffer.find('<'), buffer.find('>') - buffer.find('<')));
+
+	// Password
+	std::getline(in, buffer);
+	setPassword(buffer.substr(buffer.find(':') + 1));
+
+	// Server IP
+	std::getline(in, buffer);
+	setServerIP(buffer.substr(buffer.find(':') + 1));
+
+	// SMTP
+	std::getline(in, buffer);
+	setPortSMTP(std::stoi(buffer.substr(buffer.find(':') + 1)));
+
+	// POP3
+	std::getline(in, buffer);
+	setPortPOP3(std::stoi(buffer.substr(buffer.find(':') + 1)));
+
+	// Autoload
+	std::getline(in, buffer);
+	setAutoLoad(std::stoi(buffer.substr(buffer.find(':') + 1)));
 }
 
 

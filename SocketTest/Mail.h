@@ -40,11 +40,14 @@ public:
 	size_t getSizeOfAttachments();
 	void setAsRead();
 	void setAsUnread();
+	void setBodyText(std::string data);
 public:
 	std::string to_base64(std::vector<uint8_t>& data);
 	Mail toMailFormmat(std::string data);
 	std::string getAllMailData();
 	std::vector<uint8_t> readAttachmentFileContent(std::string filename);
 	void addAttachment(std::string& filename);
+public:
+	Mail();
 };
 

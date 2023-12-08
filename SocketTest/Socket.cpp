@@ -121,42 +121,42 @@ bool SMTP::login(const char* IP, int PORT, User person)
 void SMTP::sendMail(Mail mail)
 {	
 	std::string serverResponse;
-	std::string senderMail = "sender@test.com";
+	std::string senderMail = "khangpro216@gmail.com";
 	m_SMTP_SOCKET.sendCommand("MAIL FROM: " + senderMail + "\r\n");
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-	if (serverResponse != "250") {
+	if (serverResponse.substr(0, 3) != "250") {
 
 	}
 
-	std::string receiverMail = "";
+	std::string receiverMail = "khangpro216@gmail.com";
 	for (int i = 0; i < mail.sizeofTo(); i++) {
 		receiverMail += mail.getTo(i);
 	}
 	m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-	if (serverResponse != "250") {
+	if (serverResponse.substr(0, 3) != "250") {
 		std::cout << "Cannot send TO";
 	}
 
-	receiverMail = "";
-	for (int i = 0; i < mail.sizeofCC(); i++) {
-		receiverMail = mail.getCC(i);
-	}
-	m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
-	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-	if (serverResponse != "250") {
-		std::cout << "Cannot send CC";
-	}
+	//receiverMail = "";
+	//for (int i = 0; i < mail.sizeofCC(); i++) {
+	//	receiverMail = mail.getCC(i);
+	//}
+	//m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
+	//serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+	//if (serverResponse != "250") {
+	//	std::cout << "Cannot send CC";
+	//}
 
-	receiverMail = "";
-	for (int i = 0; i < mail.sizeofBCC(); i++) {
-		receiverMail = mail.getBCC(i);
-		m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
-		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-		if (serverResponse != "250") {
-			std::cout << "Cannot send BCC";
-		}
-	}
+	//receiverMail = "";
+	//for (int i = 0; i < mail.sizeofBCC(); i++) {
+	//	receiverMail = mail.getBCC(i);
+	//	m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
+	//	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+	//	if (serverResponse != "250") {
+	//		std::cout << "Cannot send BCC";
+	//	}
+	//}
 	
 	m_SMTP_SOCKET.sendCommand("DATA\r\n");
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
