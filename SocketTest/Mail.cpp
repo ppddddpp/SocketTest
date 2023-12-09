@@ -99,21 +99,23 @@ void Mail::setBodyText(std::string data)
 
 std::string Mail::getAllMailData()
 {
-	std::string ThingToSend = "a";
+	std::string ThingToSend = "";
 	//edit the string to send: 
 	ThingToSend += getSubject();
-	ThingToSend += '\n\n\n';
+	ThingToSend += "\r\n";
+	ThingToSend += "\r\n";
 	ThingToSend += getTextBody();
 
 	//this send method should reconsider ?
 	//send attachments
-	std::string AttachmentAsStr = " [STARTOFATTACHMENT] ";
+	std::string AttachmentInfo = " BASE64!\r\n";
+	std::string AttachmentAsStr = " [STARTOFATTACHMENT] \r\n ";
 	for (int i = 0; i < getSizeOfAttachments(); i++) {
 		std::vector<uint8_t>tempAttachment = getAttachment(i);
 		AttachmentAsStr = to_base64(tempAttachment);
-		AttachmentAsStr += " [ENDOFATTACHMENT] ";
+		AttachmentAsStr += " [ENDOFATTACHMENT] \r\n";
 	}
-	ThingToSend += AttachmentAsStr;
+	ThingToSend =ThingToSend + AttachmentInfo + AttachmentAsStr;
 	return ThingToSend;
 }
 
@@ -146,8 +148,7 @@ void Mail::addAttachment(std::string& filename)
 
 Mail::Mail()
 {
-	std::string data;
-	setBodyText(data);
+	m_hadRead = false;
 }
 
 std::string Mail::to_base64(std::vector<uint8_t>& data)

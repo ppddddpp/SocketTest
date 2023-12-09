@@ -133,42 +133,44 @@ void SMTP::sendMail(Mail mail)
 	for (int i = 0; i < mail.sizeofTo(); i++) {
 		receiverMail += mail.getTo(i);
 	}
+
 	m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 	if (serverResponse.substr(0, 3) != "250") {
-		std::cout << "Cannot send TO";
+		std::cout << "TO error";
 	}
-
-	//receiverMail = "";
-	//for (int i = 0; i < mail.sizeofCC(); i++) {
-	//	receiverMail = mail.getCC(i);
-	//}
-	//m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
-	//serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-	//if (serverResponse != "250") {
-	//	std::cout << "Cannot send CC";
-	//}
-
-	//receiverMail = "";
-	//for (int i = 0; i < mail.sizeofBCC(); i++) {
-	//	receiverMail = mail.getBCC(i);
-	//	m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
-	//	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-	//	if (serverResponse != "250") {
-	//		std::cout << "Cannot send BCC";
-	//	}
-	//}
+	
+	receiverMail = "";
+	for (int i = 0; i < mail.sizeofCC(); i++) {
+		receiverMail = mail.getCC(i);
+	}
+	m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
+	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+	if (serverResponse != "250") {
+		std::cout << "CC error";
+	}
+	
+	receiverMail = "";
+	for (int i = 0; i < mail.sizeofBCC(); i++) {
+		receiverMail = mail.getBCC(i);
+		m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
+		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+		if (serverResponse != "250") {
+			std::cout << "BCC error";
+		}
+	}
 	
 	m_SMTP_SOCKET.sendCommand("DATA\r\n");
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 	if (serverResponse.substr(0, 3) != "354") {
-		std::cout << "Data send comment error ";
+		std::cout << "Data command send comment error ";
 	}
+
 
 	std::string ThingToSend = mail.getAllMailData();
 	m_SMTP_SOCKET.sendCommand(ThingToSend);
-
-	std::string EndMailDot = ".";
+	
+	std::string EndMailDot = ".\r\n";
 	m_SMTP_SOCKET.sendCommand(EndMailDot);
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 	if (serverResponse.substr(0, 3) != "250") {
@@ -246,5 +248,5 @@ void POP3::receiveMail(User& person)
 	
 }
 
-
 #pragma endregion POP3
+
