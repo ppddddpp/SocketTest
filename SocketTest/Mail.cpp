@@ -208,7 +208,7 @@ std::string Mail::getAllMailData(std::string purpose)
 			AttachmentInfo = getAttachmentFilename(i) + "." 
 				+ getAttachmentFileType(i) + "\r\n";
 		}
-		m_hadRead = true;
+		setAsRead();
 	}
 	return ThingToSend;
 }
