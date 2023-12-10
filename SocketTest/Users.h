@@ -19,7 +19,7 @@ public:
 	void setUsername(std::string name);
 	void setUserMail(std::string userMail);
 	void setPassword(std::string pass);
-	void setServerIP(std::string serverIP);
+	void setServerIP(const char* serverIP);
 	void setPortSMTP(int num);
 	void setPortPOP3(int num);
 	void setAutoLoad(int num);

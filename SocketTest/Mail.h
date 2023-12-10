@@ -52,19 +52,28 @@ public:
 	void setTo(std::string name, int num);
 	void setCC(std::string name, int num);
 	void setBCC(std::string name, int num);
+	void setSubject(std::string data);
+	void setBodyText(std::string data);
 	void setbaseUnread();
+	void addAttachment(std::string& filename);
 	int sizeofTo();
 	int sizeofCC();
 	int sizeofBCC();
 	size_t getSizeOfAttachments();
 	void setAsRead();
 	void setAsUnread();
-	void setBodyText(std::string data);
+
 public:
 	std::string to_base64(std::vector<char>& data);
-	void addAttachment(std::string& filename);
 public:
 	Mail();
+	Mail(std::string From,
+		std::vector<std::string> To,
+		std::vector<std::string> CC,
+		std::vector<std::string> BCC,
+		std::string Subject,
+		std::string TextBody,
+		std::vector<Attachment> attachments);
 	std::string getBasicMailData();
 	std::string getAllMailData(std::string purpose);
 };

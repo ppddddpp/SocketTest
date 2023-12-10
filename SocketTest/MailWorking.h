@@ -14,3 +14,8 @@ public:
 	bool receiveMail(const char* IP, int PORT,User& person);
 };
 
+class Menu
+{
+public:
+	void display();
+};

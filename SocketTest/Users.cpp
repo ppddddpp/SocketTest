@@ -15,7 +15,7 @@ void User::setPassword(std::string pass)
 	m_password = pass;
 }
 
-void User::setServerIP(std::string serverIP)
+void User::setServerIP(const char* serverIP)
 {
 	m_serverIP = serverIP;
 }
@@ -110,7 +110,7 @@ User::User(std::string filename)
 	setUsername(buffer.substr(buffer.find(':') + 1, buffer.find('<') - buffer.find(':') - 1));
 
 	// UserMail
-	setUserMail(buffer.substr(buffer.find('<'), buffer.find('>') - buffer.find('<')));
+	setUserMail(buffer.substr(buffer.find('<') + 1, buffer.find('>') - buffer.find('<') - 1));
 
 	// Password
 	std::getline(in, buffer);
@@ -118,7 +118,10 @@ User::User(std::string filename)
 
 	// Server IP
 	std::getline(in, buffer);
-	setServerIP(buffer.substr(buffer.find(':') + 1));
+	const char* temp = new char[100];
+	buffer = buffer.substr(buffer.find(':') + 2);
+	temp = buffer.c_str();
+	setServerIP(temp);
 
 	// SMTP
 	std::getline(in, buffer);

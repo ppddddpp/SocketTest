@@ -125,17 +125,22 @@ void Mail::setFrom(std::string name)
 
 void Mail::setTo(std::string name, int num)
 {
-	m_To[num] = name;
+	m_To.push_back(name);
 }
 
 void Mail::setCC(std::string name, int num)
 {
-	m_CC[num] = name;
+	m_CC.push_back(name);
 }
 
 void Mail::setBCC(std::string name, int num)
 {
-	m_BCC[num] = name;
+	m_BCC.push_back(name);
+}
+
+void Mail::setSubject(std::string data)
+{
+	m_Subject = data;
 }
 
 void Mail::setbaseUnread()
@@ -182,6 +187,25 @@ std::string Mail::getAllMailData(std::string purpose)
 {
 	std::string ThingToSend = "";
 
+	ThingToSend += "To: ";
+	for (std::string i : m_To)
+	{
+		ThingToSend += i + ", ";
+	}
+	ThingToSend[ThingToSend.size() - 2] = ' ';
+	ThingToSend += "\r\n";
+
+	ThingToSend += "Cc: ";
+	for (std::string i : m_CC)
+	{
+		ThingToSend += i + ", ";
+	}
+	ThingToSend[ThingToSend.size() - 2] = ' ';
+	ThingToSend += "\r\n";
+
+	ThingToSend += "From: " + m_From;
+	ThingToSend += "\r\n";
+
 	ThingToSend += getSubject();
 	ThingToSend += "\r\n";
 	ThingToSend += "\r\n";
@@ -192,12 +216,16 @@ std::string Mail::getAllMailData(std::string purpose)
 		std::string AttachmentInfo = " BASE64!\r\n";
 		std::string AttachmentAsStr = "";
 		for (int i = 0; i < getSizeOfAttachments(); i++) {
-			AttachmentAsStr = " [STARTOFATTACHMENT] \r\n ";
-			AttachmentInfo = "Filename:" + getAttachmentFilename(i) + "\r\n";
-			AttachmentInfo = "FileType:" + getAttachmentFileType(i) + "\r\n";
+			AttachmentAsStr = " [STARTOFATTACHMENT]\r\n";
+			AttachmentInfo += "Filename:" + getAttachmentFilename(i) + "\r\n";
+			AttachmentInfo += "FileType:" + getAttachmentFileType(i) + "\r\n";
 			std::vector<char>tempAttachment = getAttachment(i);
-			AttachmentAsStr = to_base64(tempAttachment);
-			AttachmentAsStr += " [ENDOFATTACHMENT] \r\n";
+			std::string FileData = to_base64(tempAttachment);
+			for (int i = 0; i < FileData.size(); i += 100)
+			{
+				AttachmentAsStr += FileData.substr(i, 100) + "\r\n";
+			}
+			AttachmentAsStr += " [ENDOFATTACHMENT]\r\n";
 		}
 		ThingToSend = ThingToSend + AttachmentInfo + AttachmentAsStr;
 	}
@@ -228,6 +256,40 @@ void Mail::addAttachment(std::string& filename)
 Mail::Mail()
 {
 	m_hadRead = false;
+}
+
+Mail::Mail(std::string From, 
+	std::vector<std::string> To, 
+	std::vector<std::string> CC,
+	std::vector<std::string> BCC,
+	std::string Subject, 
+	std::string TextBody, 
+	std::vector<Attachment> attachments)
+{
+	setFrom(From);
+	for (std::string i : To)
+	{
+		setTo(i, 0);
+	}
+	
+	for (std::string i : CC)
+	{
+		setCC(i, 0);
+	}
+	
+	for (std::string i : BCC)
+	{
+		setBCC(i, 0);
+	}
+	setSubject(Subject);
+	setBodyText(TextBody);
+	m_attachmentsSize = 0;
+	for (Attachment i : attachments)
+	{
+		std::string filename = i.getFilename() + '.' + i.getFileType();
+		addAttachment(filename);
+		m_attachmentsSize += i.getSizeOfFile();
+	}
 }
 
 std::string Mail::getBasicMailData()

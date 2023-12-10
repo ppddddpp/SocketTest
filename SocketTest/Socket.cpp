@@ -130,33 +130,31 @@ void SMTP::sendMail(Mail mail)
 	}
 
 	std::string BCC_ReceiverMail = "";
+	std::string To_ReceiverMail = "";
+	std::string CC_ReceiverMail = "";
+
+	for (int j = 0; j < mail.sizeofTo(); j++) {
+		To_ReceiverMail = mail.getTo(j);
+		m_SMTP_SOCKET.sendCommand("RCPT TO: " + To_ReceiverMail + "\r\n");
+		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+		if (serverResponse.substr(0, 3) != "250") {
+			std::cout << "TO" + To_ReceiverMail + " error";
+		}
+	}
+
+	for (int j = 0; j < mail.sizeofCC(); j++) {
+		CC_ReceiverMail = mail.getCC(j);
+		m_SMTP_SOCKET.sendCommand("RCPT TO: " + CC_ReceiverMail + "\r\n");
+		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+		if (serverResponse.substr(0, 3) != "250") {
+			std::cout << "CC" + CC_ReceiverMail + " error";
+		}
+	}
 	for (int i = 0; i < mail.sizeofBCC(); i++) {
-
-		std::string To_ReceiverMail = "";
-		std::string CC_ReceiverMail = "";
-
-		for (int j = 0; j < mail.sizeofTo(); j++) {
-			To_ReceiverMail = mail.getTo(j);
-			m_SMTP_SOCKET.sendCommand("RCPT TO: " + To_ReceiverMail + "\r\n");
-			serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-			if (serverResponse.substr(0, 3) != "250") {
-				std::cout << "TO" + To_ReceiverMail + " error";
-			}
-		}
-		
-		for (int j = 0; j < mail.sizeofCC(); j++) {
-			CC_ReceiverMail = mail.getCC(j);
-			m_SMTP_SOCKET.sendCommand("RCPT TO: " + CC_ReceiverMail + "\r\n");
-			serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-			if (serverResponse != "250") {
-				std::cout << "CC" + CC_ReceiverMail + " error";
-			}
-		}
-		
 		BCC_ReceiverMail = mail.getBCC(i);
 		m_SMTP_SOCKET.sendCommand("RCPT TO: " + BCC_ReceiverMail + "\r\n");
 		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-		if (serverResponse != "250") {
+		if (serverResponse.substr(0, 3) != "250") {
 			std::cout << "BCC" + BCC_ReceiverMail + " error";
 		}
 	}
@@ -174,16 +172,10 @@ void SMTP::sendMail(Mail mail)
 	std::string EndMailDot = ".\r\n";
 	m_SMTP_SOCKET.sendCommand(EndMailDot);
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-	if (serverResponse.substr(0, 3) != "250") {
+	if (serverResponse.find("accepted") == serverResponse.npos) {
 		std::cout << "Send unsuccessful";
 	}
-	std::cout << "Send successful";
-
-	m_SMTP_SOCKET.sendCommand("QUIT");
-	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-	if (serverResponse.substr(0, 3) == "221") {
-		std::cout << "Quitted server";
-	}
+	else  std::cout << "Send successful";
 	return;
 }
 
