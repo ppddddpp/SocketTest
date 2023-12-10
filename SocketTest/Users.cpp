@@ -80,12 +80,20 @@ int User::getSizeOfListMail()
 	return m_ListOfMail.size();
 }
 
-void User::openMail(Mail mail)
+Mail User::getMail(int num)
+{
+	return m_ListOfMail[num];
+}
+
+void User::openMail()
 {
 	//function to output all mail details
-
-	//set as read
-	mail.setAsRead();
+	int count = 1;
+	for (int i = 0; i < getSizeOfListMail(); i++) {
+		std::string basicMailData = m_ListOfMail[i].getBasicMailData();
+		std::cout << count<< "." << basicMailData << std::endl;
+		count++;
+	}
 }
 
 User::User(std::string filename)
@@ -125,4 +133,22 @@ User::User(std::string filename)
 	setAutoLoad(std::stoi(buffer.substr(buffer.find(':') + 1)));
 }
 
+std::string User::getMailData(int num) 
+{
+	std::string mailData = m_ListOfMail[num].getAllMailData("open");
+	return mailData;
+}
 
+void User::saveFileLocally(Mail mail, std::string& localFilePath, int fileWantToSave)
+{
+	std::vector<char> fileContent = mail.getAttachment(fileWantToSave);
+	std::ofstream localFile(localFilePath, std::ios::binary);
+	if (localFile.is_open()) {
+		localFile.write(fileContent.data(), fileContent.size());
+		localFile.close();
+		std::cout << "File downloaded and saved locally at: " << localFilePath << std::endl;
+	}
+	else {
+		std::cout << "Error: Cannot open the local file for writing" << std::endl;
+	}
+}

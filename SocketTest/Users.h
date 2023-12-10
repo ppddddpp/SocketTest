@@ -33,19 +33,13 @@ public:
 	int getPortPOP3();
 	int getAutoLoad();
 	int getSizeOfListMail();
+	Mail getMail(int num);
 public:
-	void openMail(Mail mail);
+	void openMail();
 	User(std::string filename);
 	Mail operator[](int num) {
 		return m_ListOfMail[num];
 	}
-};
-
-class UserList {
-private:
-	std::vector<User> m_UserList;
-public:
-	User operator[](int num) {
-		return m_UserList[num];
-	}
+	std::string getMailData(int num);
+	void saveFileLocally(Mail mail, std::string& localFilePath, int fileWantToSave);
 };

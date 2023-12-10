@@ -21,8 +21,6 @@ class SMTP
 {
 private:
 	MySocket m_SMTP_SOCKET;
-protected:
-	std::string to_base64(std::vector<uint8_t>& data);
 public:
 	bool login(const char* IP, int PORT, User person);
 	void sendMail(Mail mail);

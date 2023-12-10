@@ -95,7 +95,7 @@ bool SMTP::login(const char* IP, int PORT, User person)
 	m_SMTP_SOCKET.sendCommand("AUTH LOGIN\r\n");
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 	if (serverResponse.substr(0, 3) != "500") {
-		std::cerr << "Server does not support LOGIN authentication" << std::endl;
+		std::cout << "Server does not support LOGIN authentication" << std::endl;
 		LoginAUTHNeeding = false;
 	}
 	
@@ -122,41 +122,42 @@ void SMTP::sendMail(Mail mail)
 {	
 	mail.setbaseUnread();
 	std::string serverResponse;
-	std::string senderMail = "khangpro216@gmail.com";
+	std::string senderMail = mail.getFrom();
 	m_SMTP_SOCKET.sendCommand("MAIL FROM: " + senderMail + "\r\n");
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 	if (serverResponse.substr(0, 3) != "250") {
 
 	}
 
-	std::string receiverMail = "khangpro216@gmail.com";
-	for (int i = 0; i < mail.sizeofTo(); i++) {
-		receiverMail += mail.getTo(i);
-	}
-
-	m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
-	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-	if (serverResponse.substr(0, 3) != "250") {
-		std::cout << "TO error";
-	}
-	
-	receiverMail = "";
-	for (int i = 0; i < mail.sizeofCC(); i++) {
-		receiverMail = mail.getCC(i);
-	}
-	m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
-	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
-	if (serverResponse != "250") {
-		std::cout << "CC error";
-	}
-	
-	receiverMail = "";
+	std::string BCC_ReceiverMail = "";
 	for (int i = 0; i < mail.sizeofBCC(); i++) {
-		receiverMail = mail.getBCC(i);
-		m_SMTP_SOCKET.sendCommand("RCPT TO: " + receiverMail + "\r\n");
+
+		std::string To_ReceiverMail = "";
+		std::string CC_ReceiverMail = "";
+
+		for (int j = 0; j < mail.sizeofTo(); j++) {
+			To_ReceiverMail = mail.getTo(j);
+			m_SMTP_SOCKET.sendCommand("RCPT TO: " + To_ReceiverMail + "\r\n");
+			serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+			if (serverResponse.substr(0, 3) != "250") {
+				std::cout << "TO" + To_ReceiverMail + " error";
+			}
+		}
+		
+		for (int j = 0; j < mail.sizeofCC(); j++) {
+			CC_ReceiverMail = mail.getCC(j);
+			m_SMTP_SOCKET.sendCommand("RCPT TO: " + CC_ReceiverMail + "\r\n");
+			serverResponse = m_SMTP_SOCKET.receiveServerResponse();
+			if (serverResponse != "250") {
+				std::cout << "CC" + CC_ReceiverMail + " error";
+			}
+		}
+		
+		BCC_ReceiverMail = mail.getBCC(i);
+		m_SMTP_SOCKET.sendCommand("RCPT TO: " + BCC_ReceiverMail + "\r\n");
 		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 		if (serverResponse != "250") {
-			std::cout << "BCC error";
+			std::cout << "BCC" + BCC_ReceiverMail + " error";
 		}
 	}
 	
@@ -166,10 +167,10 @@ void SMTP::sendMail(Mail mail)
 		std::cout << "Data command send comment error ";
 	}
 
-
-	std::string ThingToSend = mail.getAllMailData();
+	std::string ThingToSend = mail.getAllMailData("send");
 	m_SMTP_SOCKET.sendCommand(ThingToSend);
 	
+	m_SMTP_SOCKET.sendCommand("\r\n");
 	std::string EndMailDot = ".\r\n";
 	m_SMTP_SOCKET.sendCommand(EndMailDot);
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
@@ -230,7 +231,7 @@ bool POP3::login(const char* IP, int PORT, User person)
 bool POP3::IsExistedMail(std::string data, User person)
 {
 	for (int i = 0; i < person.getSizeOfListMail(); i++) {
-		if(data==person[i].getAllMailData())
+		if(data==person[i].getAllMailData("open"))
 		return true;
 	}
 	return false;
@@ -241,12 +242,12 @@ void POP3::receiveMail(User& person)
 	std::vector<Mail> listMailReceive;
 
 	for (int i = 0; i < listMailReceive.size(); i++) {
-		if (IsExistedMail(listMailReceive[i].getAllMailData(),person) == false) {
+		if (IsExistedMail(listMailReceive[i].getAllMailData("check"), person) == false) {
 			person.addMailToList(listMailReceive[i]);
 		}
 	}
-	
 }
+
 
 #pragma endregion POP3
 

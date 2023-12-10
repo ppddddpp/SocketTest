@@ -15,5 +15,10 @@ bool MailWorking::receiveMail(const char* IP, int PORT, User& person)
         return false;
     }
     p_POP3_Client.receiveMail(person);
+    int choose = 10;
+    person.getMailData(choose);
+    std::string PathWantToSave = "";
+    person.saveFileLocally(person.getMail(choose), PathWantToSave, 2);
+    //explain: the number is the order of file want to save ( the second file)
 }
 

@@ -2,12 +2,46 @@
 
 #pragma region Attachment
 
+void Attachment::setFilename(std::string name)
+{
+	m_filename = name;
+}
+
+void Attachment::setFileType(std::string name)
+{
+	m_fileType = name;
+}
+
+std::vector<char> Attachment::readAttachmentFileContent(std::string filename, int& size)
+{
+	std::ifstream infileName(filename, std::ios::binary);
+	if (!infileName.is_open()) {
+		std::cout << "Cannot open file " << filename << std::endl;
+		return {};
+	}
+
+	infileName.seekg(0, std::ios::end);
+	std::size_t fileSize = infileName.tellg();
+	infileName.seekg(0, std::ios::beg);
+
+	size += fileSize;
+
+	std::vector<char> fileContents((std::istreambuf_iterator<char>(infileName)),
+		std::istreambuf_iterator<char>());
+	return fileContents;
+}
+
+std::string Attachment::getFileType()
+{
+	return m_fileType;
+}
+
 std::string Attachment::getFilename()
 {
 	return m_filename;
 }
 
-std::vector<uint8_t>& Attachment::getInFileContent()
+std::vector<char>& Attachment::getInFileContent()
 {
 	return m_inFileContent;
 }
@@ -17,15 +51,32 @@ std::size_t Attachment::getSizeOfFile()
 	return m_inFileContent.size();
 }
 
-Attachment::Attachment(std::string filename, std::vector<uint8_t> fileContent)
+Attachment::Attachment()
 {
-	m_filename = filename;
-	m_inFileContent = fileContent;
+}
+
+void Attachment::deleteInvaidAttachment(Attachment nameAttachment)
+{
+	//perform the delete attachment
+}
+
+Attachment::Attachment(std::string filename, int& size)
+{
+	std::string LocalWorking = filename;
+	int dotLocation = LocalWorking.find('.');
+	setFilename(LocalWorking.substr(0, dotLocation));
+	setFileType(LocalWorking.substr(dotLocation + 1));
+	m_inFileContent = readAttachmentFileContent(filename, size);
 }
 
 #pragma endregion Attachment
 
 #pragma region Mail
+
+std::string Mail::getFrom()
+{
+	return m_From;
+}
 
 std::string Mail::getTo(int num)
 {
@@ -52,9 +103,39 @@ std::string Mail::getTextBody()
 	return m_TextBody;
 }
 
-std::vector<uint8_t> Mail::getAttachment(int num)
+std::string Mail::getAttachmentFilename(int num)
+{
+	return m_attachments[num].getFilename();
+}
+
+std::string Mail::getAttachmentFileType(int num)
+{
+	return m_attachments[num].getFileType();
+}
+
+std::vector<char> Mail::getAttachment(int num)
 {
 	return m_attachments[num].getInFileContent();
+}
+
+void Mail::setFrom(std::string name)
+{
+	m_From = name;
+}
+
+void Mail::setTo(std::string name, int num)
+{
+	m_To[num] = name;
+}
+
+void Mail::setCC(std::string name, int num)
+{
+	m_CC[num] = name;
+}
+
+void Mail::setBCC(std::string name, int num)
+{
+	m_BCC[num] = name;
 }
 
 void Mail::setbaseUnread()
@@ -94,56 +175,54 @@ void Mail::setAsUnread()
 
 void Mail::setBodyText(std::string data)
 {
-	m_TextBody = "hello";
+	m_TextBody = data;
 }
 
-std::string Mail::getAllMailData()
+std::string Mail::getAllMailData(std::string purpose)
 {
 	std::string ThingToSend = "";
-	//edit the string to send: 
+
 	ThingToSend += getSubject();
 	ThingToSend += "\r\n";
 	ThingToSend += "\r\n";
 	ThingToSend += getTextBody();
 
-	//this send method should reconsider ?
-	//send attachments
-	std::string AttachmentInfo = " BASE64!\r\n";
-	std::string AttachmentAsStr = " [STARTOFATTACHMENT] \r\n ";
-	for (int i = 0; i < getSizeOfAttachments(); i++) {
-		std::vector<uint8_t>tempAttachment = getAttachment(i);
-		AttachmentAsStr = to_base64(tempAttachment);
-		AttachmentAsStr += " [ENDOFATTACHMENT] \r\n";
+	if (purpose == "send" || purpose == "check") {
+		//send attachments
+		std::string AttachmentInfo = " BASE64!\r\n";
+		std::string AttachmentAsStr = "";
+		for (int i = 0; i < getSizeOfAttachments(); i++) {
+			AttachmentAsStr = " [STARTOFATTACHMENT] \r\n ";
+			AttachmentInfo = "Filename:" + getAttachmentFilename(i) + "\r\n";
+			AttachmentInfo = "FileType:" + getAttachmentFileType(i) + "\r\n";
+			std::vector<char>tempAttachment = getAttachment(i);
+			AttachmentAsStr = to_base64(tempAttachment);
+			AttachmentAsStr += " [ENDOFATTACHMENT] \r\n";
+		}
+		ThingToSend = ThingToSend + AttachmentInfo + AttachmentAsStr;
 	}
-	ThingToSend =ThingToSend + AttachmentInfo + AttachmentAsStr;
+	else if (purpose == "open") {
+		std::string AttachmentInfo = " List of attachments: \r\n";
+		std::string AttachmentAsStr = "";
+		for (int i = 0; i < getSizeOfAttachments(); i++) {
+			AttachmentInfo = getAttachmentFilename(i) + "." 
+				+ getAttachmentFileType(i) + "\r\n";
+		}
+		m_hadRead = true;
+	}
 	return ThingToSend;
-}
-
-std::vector<uint8_t> Mail::readAttachmentFileContent(std::string filename)
-{
-	std::ifstream infileName(filename, std::ios::binary);
-	if (!infileName.is_open()) {
-		throw std::runtime_error("Cannot open file: " + filename);
-	}
-
-	infileName.seekg(0, std::ios::end);
-	std::size_t fileSize = infileName.tellg();
-	infileName.seekg(0, std::ios::beg);
-
-	int maxSize = 3 * 1024 * 1024;
-	if (fileSize > maxSize) {
-		throw std::runtime_error("Attachment file size exceeds the allowed limit");
-	}
-
-	std::vector<uint8_t> fileContents((std::istreambuf_iterator<char>(infileName)),
-		std::istreambuf_iterator<char>());
-	return fileContents;
 }
 
 void Mail::addAttachment(std::string& filename)
 {
-	std::vector<uint8_t> fileContents = readAttachmentFileContent(filename);
-	m_attachments.emplace_back(filename, fileContents);
+	int size = m_attachmentsSize;
+	Attachment attachmentNeedToAdd = Attachment(filename, size);
+	int maxSize = 3 * 1024 * 1024;
+	if (size > maxSize) {
+		std::cout << "Attachment file size is too large ! 3MB is maximum" << std::endl;
+		Attachment::deleteInvaidAttachment(attachmentNeedToAdd);
+	}
+	m_attachments.emplace_back(attachmentNeedToAdd);
 }
 
 Mail::Mail()
@@ -151,7 +230,20 @@ Mail::Mail()
 	m_hadRead = false;
 }
 
-std::string Mail::to_base64(std::vector<uint8_t>& data)
+std::string Mail::getBasicMailData()
+{
+	std::string data = "";
+	if (m_hadRead == false) {
+		data += "(Unread)";
+	}
+	else {
+		data += "(Read)";
+	}
+	data = data + " " + getFrom() + " , " + getSubject();
+	return data;
+}
+
+std::string Mail::to_base64(std::vector<char>& data)
 {
 	const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -163,9 +255,11 @@ std::string Mail::to_base64(std::vector<uint8_t>& data)
 		uint32_t octet_2 = 0;
 		uint32_t octet_3 = 0;
 
-		if (i < data.size()) {
+		octet_1 = static_cast<uint8_t>(data[i++]);
+
+		/*if (i < data.size()) {
 			octet_1 = static_cast<uint8_t>(data[i++]);
-		}
+		}*/
 
 		if (i < data.size()) {
 			octet_2 = static_cast<uint8_t>(data[i++]);
@@ -197,11 +291,5 @@ std::string Mail::to_base64(std::vector<uint8_t>& data)
 	return ouStr;
 }
 
-Mail Mail::toMailFormmat(std::string data)
-{
-	//may be need this
-	Mail newMail;
-	return newMail;
-}
 
 #pragma endregion Mail
