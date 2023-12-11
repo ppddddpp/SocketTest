@@ -2,12 +2,23 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include "Mail.h"
+#include "FolderWorking.h"
 
 class User
 {
 private:
-	std::vector<Mail> m_ListOfMail;
+	std::vector<UserFolder> m_Folders;
+	//Folder notes
+	/* 
+	* basic declaration for folder:
+	1. Inbox
+	2. Project
+	3. Important
+	4. Work
+	5. Spam
+
+	* can adding more
+	*/
 	std::string m_username;
 	std::string m_userMail;
 	std::string m_password;
@@ -23,7 +34,6 @@ public:
 	void setPortSMTP(int num);
 	void setPortPOP3(int num);
 	void setAutoLoad(int num);
-	void addMailToList(Mail& mail);
 public:
 	std::string getUsername();
 	std::string getUserMail();
@@ -32,14 +42,12 @@ public:
 	int getPortSMTP();
 	int getPortPOP3();
 	int getAutoLoad();
-	int getSizeOfListMail();
-	Mail getMail(int num);
+	int getSizeOfFolder();
+	UserFolder getFolder(int num);
 public:
-	void openMail();
 	User(std::string filename);
-	Mail operator[](int num) {
-		return m_ListOfMail[num];
+	UserFolder operator[](int num) {
+		return m_Folders[num];
 	}
-	std::string getMailData(int num);
-	void saveFileLocally(Mail mail, std::string& localFilePath, int fileWantToSave);
+	
 };

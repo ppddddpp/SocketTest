@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <exception>
 
 class Attachment {
 private:
@@ -46,7 +45,8 @@ public:
 public:
 	std::string getAttachmentFilename(int num);
 	std::string getAttachmentFileType(int num);
-	std::vector<char> getAttachment(int num);
+	std::vector<char> getAttachment(std::string filename);
+	std::vector<char> getAttachment1(int num);
 public:
 	void setFrom(std::string name);
 	void setTo(std::string name, int num);

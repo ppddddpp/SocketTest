@@ -222,9 +222,14 @@ bool POP3::login(const char* IP, int PORT, User person)
 
 bool POP3::IsExistedMail(std::string data, User person)
 {
-	for (int i = 0; i < person.getSizeOfListMail(); i++) {
-		if(data==person[i].getAllMailData("open"))
-		return true;
+	for (int i = 0; i < person.getSizeOfFolder(); i++) {
+		UserFolder localWorkingFolder = person.getFolder(i);
+		for (int j = 0; j < localWorkingFolder.getSizeOfListMail(); j++) {
+			if (data == localWorkingFolder[j].getAllMailData("check"))
+			{
+				return true;
+			}
+		}
 	}
 	return false;
 }
@@ -234,8 +239,9 @@ void POP3::receiveMail(User& person)
 	std::vector<Mail> listMailReceive;
 
 	for (int i = 0; i < listMailReceive.size(); i++) {
+		UserFolder localWorkingFolder = person.getFolder(0);
 		if (IsExistedMail(listMailReceive[i].getAllMailData("check"), person) == false) {
-			person.addMailToList(listMailReceive[i]);
+			localWorkingFolder.addMailToList(listMailReceive[i]);
 		}
 	}
 }

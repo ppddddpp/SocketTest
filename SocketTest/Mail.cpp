@@ -113,7 +113,19 @@ std::string Mail::getAttachmentFileType(int num)
 	return m_attachments[num].getFileType();
 }
 
-std::vector<char> Mail::getAttachment(int num)
+std::vector<char> Mail::getAttachment(std::string filename)
+{
+	for (int i = 0; i < getSizeOfAttachments();i++) {
+		std::string checkingFilename = m_attachments[i].getFilename() + "."
+			+ m_attachments[i].getFileType();
+		if (filename == checkingFilename) {
+			return m_attachments[i].getInFileContent();
+		}
+	}
+	return {};
+}
+
+std::vector<char> Mail::getAttachment1(int num)
 {
 	return m_attachments[num].getInFileContent();
 }
@@ -219,7 +231,7 @@ std::string Mail::getAllMailData(std::string purpose)
 			AttachmentAsStr = " [STARTOFATTACHMENT]\r\n";
 			AttachmentInfo += "Filename:" + getAttachmentFilename(i) + "\r\n";
 			AttachmentInfo += "FileType:" + getAttachmentFileType(i) + "\r\n";
-			std::vector<char>tempAttachment = getAttachment(i);
+			std::vector<char>tempAttachment = getAttachment1(i);
 			std::string FileData = to_base64(tempAttachment);
 			for (int i = 0; i < FileData.size(); i += 100)
 			{

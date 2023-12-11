@@ -35,11 +35,6 @@ void User::setAutoLoad(int num)
 	m_autoLoad = num;
 }
 
-void User::addMailToList(Mail& mail)
-{
-	m_ListOfMail.push_back(mail);
-}
-
 std::string User::getUsername()
 {
 	return m_username;
@@ -75,25 +70,14 @@ int User::getAutoLoad()
 	return m_autoLoad;
 }
 
-int User::getSizeOfListMail()
+int User::getSizeOfFolder()
 {
-	return m_ListOfMail.size();
+	return m_Folders.size();
 }
 
-Mail User::getMail(int num)
+UserFolder User::getFolder(int num)
 {
-	return m_ListOfMail[num];
-}
-
-void User::openMail()
-{
-	//function to output all mail details
-	int count = 1;
-	for (int i = 0; i < getSizeOfListMail(); i++) {
-		std::string basicMailData = m_ListOfMail[i].getBasicMailData();
-		std::cout << count<< "." << basicMailData << std::endl;
-		count++;
-	}
+	return m_Folders[num];
 }
 
 User::User(std::string filename)
@@ -134,24 +118,4 @@ User::User(std::string filename)
 	// Autoload
 	std::getline(in, buffer);
 	setAutoLoad(std::stoi(buffer.substr(buffer.find(':') + 1)));
-}
-
-std::string User::getMailData(int num) 
-{
-	std::string mailData = m_ListOfMail[num].getAllMailData("open");
-	return mailData;
-}
-
-void User::saveFileLocally(Mail mail, std::string& localFilePath, int fileWantToSave)
-{
-	std::vector<char> fileContent = mail.getAttachment(fileWantToSave);
-	std::ofstream localFile(localFilePath, std::ios::binary);
-	if (localFile.is_open()) {
-		localFile.write(fileContent.data(), fileContent.size());
-		localFile.close();
-		std::cout << "File downloaded and saved locally at: " << localFilePath << std::endl;
-	}
-	else {
-		std::cout << "Error: Cannot open the local file for writing" << std::endl;
-	}
 }

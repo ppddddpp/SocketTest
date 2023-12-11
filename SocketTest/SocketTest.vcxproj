@@ -128,6 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FolderWorking.cpp" />
     <ClCompile Include="Mail.cpp" />
     <ClCompile Include="MailWorking.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -135,6 +136,7 @@
     <ClCompile Include="Users.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FolderWorking.h" />
     <ClInclude Include="Header.h" />
     <ClInclude Include="Mail.h" />
     <ClInclude Include="MailWorking.h" />
