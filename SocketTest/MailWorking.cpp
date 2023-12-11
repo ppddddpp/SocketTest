@@ -161,6 +161,50 @@ void Menu::display()
 
         else if ("2" == choice)
         {
+            std::string buffer;
+            std::cout << "Here is a list of folders in your mailbox: " << std::endl;
+            std::cout << "1. Inbox" << std::endl;
+            std::cout << "2. Project" << std::endl;
+            std::cout << "3. Important" << std::endl;
+            std::cout << "4. Work" << std::endl;
+            std::cout << "5. Spam" << std::endl;
+            std::cout << "Which folder do you want to access: (Enter nothing to return to menu)" << std::endl;
+            getline(std::cin, buffer);
+            if ("1" == buffer)
+            {
+                std::cout << "Here is the list of mails in your Inbox: " << std::endl;
+            }
+            else if ("2" == buffer)
+            {
+                std::cout << "Here is the list of mails in your Project: " << std::endl;
+            }
+            else if ("3" == buffer)
+            {
+                std::cout << "Here is the list of mails in your Important: " << std::endl;
+            }
+            else if ("4" == buffer)
+            {
+                std::cout << "Here is the list of mails in your Work: " << std::endl;
+            }
+            else if ("5" == buffer)
+            {
+                std::cout << "Here is the list of mails in your Spam: " << std::endl;
+            }
+            else continue;
+            
+            // for-loop
+            // list
+
+            std::cout << "Which email do you want to read: (Enter nothing to return to menu or 0 to show list again)" << std::endl;
+            getline(std::cin, buffer);
+            std::cout << "Email number " << buffer << "'s contents: " << std::endl;
+
+            // Email data
+
+            // check for attachment files
+            
+            // std::cout << "In this email, there exist(s) attachment file(s), do you want to save to local computer: << std::endl;
+
 
         }
 
