@@ -225,7 +225,7 @@ bool POP3::IsExistedMail(std::string data, User person)
 	for (int i = 0; i < person.getSizeOfFolder(); i++) {
 		UserFolder localWorkingFolder = person.getFolder(i);
 		for (int j = 0; j < localWorkingFolder.getSizeOfListMail(); j++) {
-			if (data == localWorkingFolder[j].getAllMailData("check"))
+			if (data == localWorkingFolder[j].getMailAllData("check")) 
 			{
 				return true;
 			}
@@ -236,11 +236,12 @@ bool POP3::IsExistedMail(std::string data, User person)
 
 void POP3::receiveMail(User& person)
 {
-	std::vector<Mail> listMailReceive;
+	std::vector<MailFolder> listMailReceive;
 
 	for (int i = 0; i < listMailReceive.size(); i++) {
 		UserFolder localWorkingFolder = person.getFolder(0);
-		if (IsExistedMail(listMailReceive[i].getAllMailData("check"), person) == false) {
+		if (IsExistedMail(listMailReceive[i].getMailAllData("check"), person) == false) 
+		{
 			localWorkingFolder.addMailToList(listMailReceive[i]);
 		}
 	}

@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 #include "FolderWorking.h"
+#include <filesystem>
 
 class User
 {
@@ -47,7 +48,8 @@ public:
 public:
 	User(std::string filename);
 	UserFolder operator[](int num) {
-		return m_Folders[num];
+
 	}
+	void moveMailToFolder(MailFolder mail, UserFolder& toFolder);
 	
 };

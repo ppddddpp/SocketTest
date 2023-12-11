@@ -119,3 +119,34 @@ User::User(std::string filename)
 	std::getline(in, buffer);
 	setAutoLoad(std::stoi(buffer.substr(buffer.find(':') + 1)));
 }
+
+void User::moveMailToFolder(MailFolder mail, UserFolder& toFolder)
+{
+	std::string folderPath = toFolder.getWorkingUserPath();
+	try {
+		if (!std::filesystem::exists(folderPath)) {
+			std::filesystem::create_directory(folderPath);
+			std::cout << "Folder created successfully.\n";
+		}
+		else {
+			std::cout << "Folder already exists.\n";
+		}
+		//remember to add mailPath
+		std::string mailPath = "";
+
+		std::filesystem::path mailFilePath = mailPath;
+		std::string fileName = mailFilePath.filename().string();
+
+		// Construct the destination path
+		std::filesystem::path destinationPath = folderPath;
+		destinationPath /= fileName;
+
+		// Copy the file to the destination folder
+		std::filesystem::copy(mailPath, destinationPath, 
+			std::filesystem::copy_options::overwrite_existing);
+	}
+	catch (const std::filesystem::filesystem_error& e) {
+		std::cout << "Error creating folder: " << e.what() << "\n";
+	}
+}
+

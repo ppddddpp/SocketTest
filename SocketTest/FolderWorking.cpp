@@ -1,32 +1,20 @@
 #include "FolderWorking.h"
 
 #pragma region UserFolder
-
-Mail UserFolder::getMail(int num)
-{
-	return m_ListOfMail[num];
-}
-
-void UserFolder::addMailToList(Mail& mail)
-{
-	m_ListOfMail.push_back(mail);
-}
-
 std::string UserFolder::getMailData(int num)
 {
-	std::string mailData = m_ListOfMail[num].getAllMailData("open");
+	std::string mailData = m_ListOfMail[num].getMailAllData("open");
 	return mailData;
 }
 
-void UserFolder::openMail()
+MailFolder UserFolder::getMailAttachment(int num)
 {
-	//function to output all mail details
-	int count = 1;
-	for (int i = 0; i < getSizeOfListMail(); i++) {
-		std::string basicMailData = m_ListOfMail[i].getBasicMailData();
-		std::cout << count << "." << basicMailData << std::endl;
-		count++;
-	}
+	return {};
+}
+
+MailFolder UserFolder::getMail(int num)
+{
+	return m_ListOfMail[num];
 }
 
 int UserFolder::getSizeOfListMail()
@@ -34,19 +22,29 @@ int UserFolder::getSizeOfListMail()
 	return m_ListOfMail.size();
 }
 
-void UserFolder::saveMail(Mail mail)
+void UserFolder::addMailToList(MailFolder& mail)
 {
 	m_ListOfMail.push_back(mail);
 }
 
-void UserFolder::deleteMail(Mail mail)
+void UserFolder::saveMail(MailFolder mail)
+{
+	m_ListOfMail.push_back(mail);
+}
+
+void UserFolder::deleteMail(MailFolder mail)
 {
 
 }
 
-void UserFolder::savedFileLocally(Mail mail, std::string& localFilePath, std::string fileWantToSave)
+void UserFolder::openMailChosen(int num)
 {
-	std::vector<char> fileContent = mail.getAttachment(fileWantToSave);
+	m_ListOfMail[num].openMail();
+}
+
+void UserFolder::savedFileLocally(MailFolder mail, std::string& localFilePath, std::string fileWantToSave)
+{
+	std::vector<char> fileContent = mail.getMailAttachment(fileWantToSave);
 	std::string placeToSave = localFilePath + "\\" + fileWantToSave;
 
 	std::ofstream localFile(placeToSave, std::ios::binary);
@@ -60,12 +58,75 @@ void UserFolder::savedFileLocally(Mail mail, std::string& localFilePath, std::st
 	}
 }
 
-void UserFolder::getSubjectForArrange(std::string name)
+
+std::string UserFolder::getWorkingUserPath()
 {
-	for (int i = 0; i < getSizeOfListMail(); i++) {
-		if (name == m_ListOfMail[i].getSubject()) {
-			std::cout << m_ListOfMail[i].getBasicMailData();
-		}
-	}
+	return getExecutablePath();
 }
+
 #pragma endregion UserFolder
+
+#pragma region MailFolder
+std::string MailFolder::getMailBasicData()
+{
+	return mail.getBasicMailData();
+}
+
+std::string MailFolder::getMailAllData(std::string purpose)
+{
+	return mail.getAllMailData(purpose);
+}
+
+void MailFolder::openMail()
+{
+	mail.getAllMailData("open");
+}
+
+std::vector<char> MailFolder::getMailAttachment(std::string filename)
+{
+	return mail.getAttachment(filename);
+}
+
+std::ofstream MailFolder::mailToFile(std::string filename)
+{
+	std::ofstream mailAsFile(filename);
+
+	//
+
+	//questionable ? need to return file or path
+	std::string mailFilePath = getExecutablePath();
+	return mailAsFile;
+}
+
+std::ofstream MailFolder::attachmentToFile(std::string filename)
+{
+	std::ofstream attachmentAsFile(filename);
+	
+	//
+
+	//questionable ? need to return file or path
+	std::string attachmentFilePath = getExecutablePath();
+	return attachmentAsFile;
+}
+
+#pragma endregion MailFolder
+
+#pragma region GettingWorkingPath
+std::string wideToNarrow(const std::wstring& wideStr)
+{
+	int bufferSize = WideCharToMultiByte(CP_UTF8, 0, wideStr.c_str(), -1, NULL, 0, NULL, NULL);
+	std::string result(bufferSize, 0);
+	WideCharToMultiByte(CP_UTF8, 0, wideStr.c_str(), -1, &result[0], bufferSize, NULL, NULL);
+	return result;
+}
+
+std::string getExecutablePath()
+{
+	wchar_t buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+	std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
+	std::wstring wpath = std::wstring(buffer).substr(0, pos);
+	return wideToNarrow(wpath);
+}
+
+#pragma endregion MailFolder
