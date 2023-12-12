@@ -7,6 +7,11 @@ std::string UserFolder::getMailData(int num)
 	return mailData;
 }
 
+void UserFolder::setDataMailAttachment(std::vector<char> mailAttachment, int num)
+{
+	m_ListOfMail[num].setMailAttachment(mailAttachment, num);
+}
+
 MailFolder UserFolder::getMailAttachment(int num)
 {
 	return {};
@@ -42,6 +47,11 @@ void UserFolder::deleteMail(MailFolder mail)
 
 }
 
+void UserFolder::setMailSubject(std::string data)
+{
+	
+}
+
 void UserFolder::openMailChosen(int num)
 {
 	m_ListOfMail[num].openMail();
@@ -69,6 +79,39 @@ std::string UserFolder::getWorkingUserPath()
 	return "/." + getFolderName();
 }
 
+void UserFolder::exactMailDataDownloaded(std::string data)
+{
+	std::string localWorkingData = data;
+	std::string mailDataExacted = "";
+	
+	std::stringstream issTo(localWorkingData);
+
+	
+
+
+	std::vector<char>attachmentDataExacted;
+	int countFile = -1;
+	size_t startPosAttachment = localWorkingData.find("[STARTOFATTACHMENT]" + '\r\n');
+	size_t endPosAttachment = localWorkingData.find("[ENDOFATTACHMENT]" + '\r\n');
+	while (startPosAttachment != std::string::npos && endPosAttachment != std::string::npos)
+	{
+		countFile++;
+		std::string extractedAttachment = localWorkingData.substr(startPosAttachment + std::strlen("[STARTOFATTACHMENT]"),
+			endPosAttachment - startPosAttachment - std::strlen("[STARTOFATTACHMENT]"));
+
+		std::vector<char> attachmentData(extractedAttachment.begin(), extractedAttachment.end());
+		attachmentDataExacted.insert(attachmentDataExacted.end(), attachmentData.begin(), attachmentData.end());
+
+		setDataMailAttachment(attachmentDataExacted, countFile);
+
+		localWorkingData = localWorkingData.substr(endPosAttachment + std::strlen("[ENDOFATTACHMENT]"));
+		
+		startPosAttachment = localWorkingData.find("[STARTOFATTACHMENT]");
+		endPosAttachment = localWorkingData.find("[ENDOFATTACHMENT]");
+
+	}
+}
+
 UserFolder::UserFolder(std::string folderName)
 {
 	m_folderName = folderName;
@@ -92,6 +135,11 @@ void MailFolder::setMailName(int count)
 	std::stringstream builder;
 	builder << "(" << m_mail.getReadStatus() << ")" << " msg" << std::to_string(count);
 	m_folderName = builder.str();
+}
+
+void MailFolder::setMailAttachment(std::vector<char> attachmentName, int num)
+{
+	m_mail.setMailAttachment(attachmentName, num);
 }
 
 std::string MailFolder::getMailName()

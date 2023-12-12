@@ -16,9 +16,16 @@ public:
 public:
 	void openMail();
 	std::string getMailBasicData();
-	std::string getMailAllData(std::string purpose);
-	void setMailName(int count);
 	std::string getMailName();
+	std::string getMailAllData(std::string purpose);
+public:
+	void setMailName(int count);
+	void setMailSubject(std::string data);
+	void setMailTo(std::string data, int num);
+	void setMailCC(std::string data, int num);
+	void setMailBCC(std::string data, int num);
+	void setMailBody(std::string data);
+	void setMailAttachment(std::vector<char> attachmentName, int num);
 public:
 	std::vector<char> getMailAttachment(std::string filename);
 public:
@@ -41,6 +48,13 @@ public:
 	void saveMail(MailFolder mail);
 	void deleteMail(MailFolder mail);
 public:
+	void setMailSubject(std::string data);
+	void setMailTo(std::string data, int num);
+	void setMailCC(std::string data, int num);
+	void setMailBCC(std::string data, int num);
+	void setMailBody(std::string data);
+	void setDataMailAttachment(std::vector<char> mailAttachment, int num);
+public:
 	MailFolder getMailAttachment(int num);
 	MailFolder getMail(int num);
 	std::string getMailData(int num);
@@ -54,6 +68,7 @@ public:
 	void savedFileLocally(MailFolder mail, std::string& localFilePath, std::string fileWantToSave);
 	std::string getWorkingUserPath();
 public:
+	void exactMailDataDownloaded(std::string data);
 	std::vector<MailFolder> MailSubjectSameAs(std::string name);
 	std::vector<MailFolder> UnreadMail();
 public:

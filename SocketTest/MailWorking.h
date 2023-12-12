@@ -1,6 +1,7 @@
 #pragma once
 #include "Socket.h"
-
+#include <chrono>
+#include <thread>
 
 class MailWorking
 {

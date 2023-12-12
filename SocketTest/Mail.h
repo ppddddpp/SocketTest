@@ -14,6 +14,7 @@ public:
 	void setFileType(std::string name);
 	std::vector<char> readAttachmentFileContent(std::string filename, int& size);
 public:
+	void setFileContent(std::vector<char> attachmentData);
 	std::string getFileType();
 	std::string getFilename();
 	std::vector<char>& getInFileContent();
@@ -56,7 +57,8 @@ public:
 	void setSubject(std::string data);
 	void setBodyText(std::string data);
 	void setbaseUnread();
-	void addAttachment(std::string& filename);
+	void setMailAttachment(std::vector<char> attachmentData, int num);
+	void addAttachmentToSend(std::string& filename);
 	int sizeofTo();
 	int sizeofCC();
 	int sizeofBCC();
