@@ -63,8 +63,9 @@ void Attachment::deleteInvaidAttachment(Attachment nameAttachment)
 Attachment::Attachment(std::string filename, int& size)
 {
 	std::string LocalWorking = filename;
-	int dotLocation = LocalWorking.find('.');
-	setFilename(LocalWorking.substr(0, dotLocation));
+	int backwardSlashLocation = LocalWorking.find('/');
+	int dotLocation = LocalWorking.find_last_of('.');
+	setFilename(LocalWorking.substr(backwardSlashLocation + 1, dotLocation - backwardSlashLocation - 1));
 	setFileType(LocalWorking.substr(dotLocation + 1));
 	m_inFileContent = readAttachmentFileContent(filename, size);
 }
@@ -101,6 +102,11 @@ std::string Mail::getSubject()
 std::string Mail::getTextBody()
 {
 	return m_TextBody;
+}
+
+std::string Mail::getReadStatus()
+{
+	return (m_isRead ? "Read" : "Unread");
 }
 
 std::string Mail::getAttachmentFilename(int num)
@@ -157,7 +163,7 @@ void Mail::setSubject(std::string data)
 
 void Mail::setbaseUnread()
 {
-	m_hadRead = false;
+	m_isRead = false;
 }
 
 int Mail::sizeofTo()
@@ -182,12 +188,12 @@ size_t Mail::getSizeOfAttachments()
 
 void Mail::setAsRead()
 {
-	m_hadRead = true;
+	m_isRead = true;
 }
 
 void Mail::setAsUnread()
 {
-	m_hadRead = false;
+	m_isRead = false;
 }
 
 void Mail::setBodyText(std::string data)
@@ -225,9 +231,9 @@ std::string Mail::getAllMailData(std::string purpose)
 
 	if (purpose == "send" || purpose == "check") {
 		//send attachments
-		std::string AttachmentInfo = " BASE64!\r\n";
-		std::string AttachmentAsStr = "";
 		for (int i = 0; i < getSizeOfAttachments(); i++) {
+			std::string AttachmentInfo = "\r\nBASE64!\r\n";
+			std::string AttachmentAsStr = "";
 			AttachmentAsStr = " [STARTOFATTACHMENT]\r\n";
 			AttachmentInfo += "Filename:" + getAttachmentFilename(i) + "\r\n";
 			AttachmentInfo += "FileType:" + getAttachmentFileType(i) + "\r\n";
@@ -238,8 +244,8 @@ std::string Mail::getAllMailData(std::string purpose)
 				AttachmentAsStr += FileData.substr(i, 100) + "\r\n";
 			}
 			AttachmentAsStr += " [ENDOFATTACHMENT]\r\n";
+			ThingToSend = ThingToSend + AttachmentInfo + AttachmentAsStr;
 		}
-		ThingToSend = ThingToSend + AttachmentInfo + AttachmentAsStr;
 	}
 	else if (purpose == "open") {
 		std::string AttachmentInfo = " List of attachments: \r\n";
@@ -267,7 +273,7 @@ void Mail::addAttachment(std::string& filename)
 
 Mail::Mail()
 {
-	m_hadRead = false;
+	m_isRead = false;
 }
 
 Mail::Mail(std::string From, 
@@ -307,7 +313,7 @@ Mail::Mail(std::string From,
 std::string Mail::getBasicMailData()
 {
 	std::string data = "";
-	if (m_hadRead == false) {
+	if (m_isRead == false) {
 		data += "(Unread)";
 	}
 	else {

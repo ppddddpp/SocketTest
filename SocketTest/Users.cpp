@@ -80,6 +80,11 @@ UserFolder User::getFolder(int num)
 	return m_Folders[num];
 }
 
+UserFolder User::operator[](int num)
+{
+	return m_Folders[num];
+}
+
 User::User(std::string filename)
 {
 	std::ifstream in(filename);
@@ -118,14 +123,27 @@ User::User(std::string filename)
 	// Autoload
 	std::getline(in, buffer);
 	setAutoLoad(std::stoi(buffer.substr(buffer.find(':') + 1)));
+
+	// Folders
+	UserFolder Inbox("Inbox");
+	m_Folders.push_back(Inbox);
+	UserFolder Project("Project");
+	m_Folders.push_back(Project);
+	UserFolder Important("Important");
+	m_Folders.push_back(Important);
+	UserFolder Work("Work");
+	m_Folders.push_back(Work);
+	UserFolder Spam("Spam");
+	m_Folders.push_back(Spam);
 }
 
 void User::moveMailToFolder(MailFolder mail, UserFolder& toFolder)
 {
-	std::string folderPath = toFolder.getWorkingUserPath();
+	mail.setMailName(toFolder.getSizeOfListMail());
+	std::string folderPath = "./" + toFolder.getFolderName() + "./" + mail.getMailName();
 	try {
 		if (!std::filesystem::exists(folderPath)) {
-			std::filesystem::create_directory(folderPath);
+			std::filesystem::create_directories(folderPath);
 			std::cout << "Folder created successfully.\n";
 		}
 		else {
@@ -142,11 +160,10 @@ void User::moveMailToFolder(MailFolder mail, UserFolder& toFolder)
 		destinationPath /= fileName;
 
 		// Copy the file to the destination folder
-		std::filesystem::copy(mailPath, destinationPath, 
+		std::filesystem::copy(mailPath, destinationPath,
 			std::filesystem::copy_options::overwrite_existing);
 	}
 	catch (const std::filesystem::filesystem_error& e) {
 		std::cout << "Error creating folder: " << e.what() << "\n";
 	}
 }
-

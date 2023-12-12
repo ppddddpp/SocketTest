@@ -34,7 +34,7 @@ private:
 	std::string m_TextBody;
 	std::vector<Attachment> m_attachments;
 	int m_attachmentsSize;
-	bool m_hadRead;
+	bool m_isRead;
 public:
 	std::string getFrom();
 	std::string getTo(int num);
@@ -42,6 +42,7 @@ public:
 	std::string getBCC(int num);
 	std::string getSubject();
 	std::string getTextBody();
+	std::string getReadStatus();
 public:
 	std::string getAttachmentFilename(int num);
 	std::string getAttachmentFileType(int num);

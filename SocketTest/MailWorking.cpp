@@ -19,7 +19,7 @@ bool MailWorking::receiveMail(const char* IP, int PORT, User& person)
     UserFolder folderWorking = person.getFolder(1);
     std::string PathWantToSave = "";
     std::string wantToSaveFile = "";
-    folderWorking.savedFileLocally(folderWorking.getMail(10), PathWantToSave, wantToSaveFile);
+    folderWorking.savedFileLocally(folderWorking.getMail(0), PathWantToSave, wantToSaveFile);
     //explain: the number is the order of file want to save ( the second file)
 }
 
@@ -161,6 +161,16 @@ void Menu::display()
 
         else if ("2" == choice)
         {
+            User usertest("config.txt");
+            MailWorking test;
+            test.receiveMail(usertest.getServerIP().c_str(), usertest.getPortPOP3(), usertest);
+            std::cout << std::endl;
+        }
+
+        else if ("3" == choice)
+        {
+            return;
+
             std::string buffer;
             std::cout << "Here is a list of folders in your mailbox: " << std::endl;
             std::cout << "1. Inbox" << std::endl;
@@ -191,7 +201,7 @@ void Menu::display()
                 std::cout << "Here is the list of mails in your Spam: " << std::endl;
             }
             else continue;
-            
+
             // for-loop
             // list
 
@@ -202,15 +212,10 @@ void Menu::display()
             // Email data
 
             // check for attachment files
-            
+
             // std::cout << "In this email, there exist(s) attachment file(s), do you want to save to local computer: << std::endl;
 
 
-        }
-
-        else if ("3" == choice)
-        {
-            return;
         }
         std::cout << std::endl;
     }

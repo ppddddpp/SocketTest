@@ -35,4 +35,5 @@ public:
 	bool login(const char* IP, int PORT, User person);
 	bool IsExistedMail(std::string data, User person);
 	void receiveMail(User& person);
+	Mail getMailFromString(std::string mail);
 };

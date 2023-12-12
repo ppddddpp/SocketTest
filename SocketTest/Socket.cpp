@@ -51,7 +51,7 @@ void MySocket::sendCommand(std::string command)
 
 std::string MySocket::receiveServerResponse()
 {
-	char buffer[4096];
+	char buffer[262144];
 	int bytesRead = recv(m_socket, buffer, sizeof(buffer), 0);
 	if (bytesRead == SOCKET_ERROR) {
 		std::cout << "Cannot receive data" << std::endl;
@@ -203,8 +203,15 @@ bool POP3::login(const char* IP, int PORT, User person)
 		std::cout << "Server is not ready yet";
 		return false;
 	}
+
+	m_POP3_SOCKET.sendCommand("CAPA\r\n");
+	serverResponse = m_POP3_SOCKET.receiveServerResponse();
+	if (isOk(serverResponse) == false) {
+		std::cout << "Wrong username";
+		return false;
+	}
 	
-	m_POP3_SOCKET.sendCommand("USER " + person.getUsername() + "\r\n");
+	m_POP3_SOCKET.sendCommand("USER " + person.getUserMail() + "\r\n");
 	serverResponse = m_POP3_SOCKET.receiveServerResponse();
 	if (isOk(serverResponse) == false) {
 		std::cout << "Wrong username";
@@ -237,16 +244,54 @@ bool POP3::IsExistedMail(std::string data, User person)
 void POP3::receiveMail(User& person)
 {
 	std::vector<MailFolder> listMailReceive;
+	std::string serverResponse;
+
+	m_POP3_SOCKET.sendCommand("STAT\r\n");
+	serverResponse = m_POP3_SOCKET.receiveServerResponse();
+	if (isOk(serverResponse) == false) {
+		std::cout << "Problem with STAT";
+		return;
+	}
+
+	int numOfMails = stoi(serverResponse.substr(serverResponse.find_first_of("0123456789"), serverResponse.find_last_of(' ')));
+
+	m_POP3_SOCKET.sendCommand("LIST\r\n");
+	serverResponse = m_POP3_SOCKET.receiveServerResponse();
+	if (isOk(serverResponse) == false) {
+		std::cout << "List error";
+		return;
+	}
+
+	m_POP3_SOCKET.sendCommand("UIDL\r\n");
+	serverResponse = m_POP3_SOCKET.receiveServerResponse();
+	if (isOk(serverResponse) == false) {
+		std::cout << "UIDL error";
+		return;
+	}
+
+	for (int i = 0; i < numOfMails; i++)
+	{
+		std::string returnMail = "RETR " + std::to_string(i + 1) + '\r' + '\n';
+		m_POP3_SOCKET.sendCommand(returnMail);
+		serverResponse = m_POP3_SOCKET.receiveServerResponse();
+		Mail buffer = getMailFromString(serverResponse);
+		listMailReceive.push_back(MailFolder(buffer));
+	}
 
 	for (int i = 0; i < listMailReceive.size(); i++) {
-		UserFolder localWorkingFolder = person.getFolder(0);
-		if (IsExistedMail(listMailReceive[i].getMailAllData("check"), person) == false) 
+		if (IsExistedMail(listMailReceive[i].getMailAllData("check"), person) == false)
 		{
-			localWorkingFolder.addMailToList(listMailReceive[i]);
+			// config FIX LATER
+			person[0].addMailToList(listMailReceive[i]);
 		}
 	}
 }
 
+Mail POP3::getMailFromString(std::string mail)
+{
+	Mail buffer;
+	return Mail();
+}
 
 #pragma endregion POP3
 

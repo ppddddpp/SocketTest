@@ -9,17 +9,6 @@ class User
 {
 private:
 	std::vector<UserFolder> m_Folders;
-	//Folder notes
-	/* 
-	* basic declaration for folder:
-	1. Inbox
-	2. Project
-	3. Important
-	4. Work
-	5. Spam
-
-	* can adding more
-	*/
 	std::string m_username;
 	std::string m_userMail;
 	std::string m_password;
@@ -47,9 +36,7 @@ public:
 	UserFolder getFolder(int num);
 public:
 	User(std::string filename);
-	UserFolder operator[](int num) {
-
-	}
+	UserFolder operator[](int num);
 	void moveMailToFolder(MailFolder mail, UserFolder& toFolder);
 	
 };

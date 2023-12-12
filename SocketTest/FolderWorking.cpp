@@ -22,6 +22,11 @@ int UserFolder::getSizeOfListMail()
 	return m_ListOfMail.size();
 }
 
+std::string UserFolder::getFolderName()
+{
+	return m_folderName;
+}
+
 void UserFolder::addMailToList(MailFolder& mail)
 {
 	m_ListOfMail.push_back(mail);
@@ -61,7 +66,12 @@ void UserFolder::savedFileLocally(MailFolder mail, std::string& localFilePath, s
 
 std::string UserFolder::getWorkingUserPath()
 {
-	return getExecutablePath();
+	return "/." + getFolderName();
+}
+
+UserFolder::UserFolder(std::string folderName)
+{
+	m_folderName = folderName;
 }
 
 #pragma endregion UserFolder
@@ -69,64 +79,69 @@ std::string UserFolder::getWorkingUserPath()
 #pragma region MailFolder
 std::string MailFolder::getMailBasicData()
 {
-	return mail.getBasicMailData();
+	return m_mail.getBasicMailData();
 }
 
 std::string MailFolder::getMailAllData(std::string purpose)
 {
-	return mail.getAllMailData(purpose);
+	return m_mail.getAllMailData(purpose);
+}
+
+void MailFolder::setMailName(int count)
+{
+	std::stringstream builder;
+	builder << "(" << m_mail.getReadStatus() << ")" << " msg" << std::to_string(count);
+	m_folderName = builder.str();
+}
+
+std::string MailFolder::getMailName()
+{
+	return m_folderName;
 }
 
 void MailFolder::openMail()
 {
-	mail.getAllMailData("open");
+	m_mail.getAllMailData("open");
 }
 
 std::vector<char> MailFolder::getMailAttachment(std::string filename)
 {
-	return mail.getAttachment(filename);
+	return m_mail.getAttachment(filename);
 }
 
-std::ofstream MailFolder::mailToFile(std::string filename)
+std::ofstream MailFolder::mailToFolder(std::string folderName)
 {
-	std::ofstream mailAsFile(filename);
+	std::string mailPath = "./" + folderName + "./" + getMailName() + ".txt";
+	std::ofstream mailAsFile(mailPath);
 
 	//
 
-	//questionable ? need to return file or path
-	std::string mailFilePath = getExecutablePath();
-	return mailAsFile;
+	//questionable file path or return void?
+	std::string mailFilePath = mailPath;
+	return std::ofstream(mailFilePath);
 }
 
-std::ofstream MailFolder::attachmentToFile(std::string filename)
+std::ofstream MailFolder::attachmentToFolder(std::string folderName, int attachmentNumber)
 {
-	std::ofstream attachmentAsFile(filename);
-	
+	std::string mailPath = "./" + folderName + "./" + m_mail.getAttachmentFilename(attachmentNumber) + "." + m_mail.getAttachmentFileType(attachmentNumber);
+	std::ofstream mailAsFile(mailPath);
+
 	//
 
-	//questionable ? need to return file or path
-	std::string attachmentFilePath = getExecutablePath();
-	return attachmentAsFile;
+	//questionable file path or return void?
+	std::string mailFilePath = mailPath;
+	return std::ofstream(mailFilePath);
 }
 
-#pragma endregion MailFolder
-
-#pragma region GettingWorkingPath
-std::string wideToNarrow(const std::wstring& wideStr)
+MailFolder::MailFolder(Mail mail)
 {
-	int bufferSize = WideCharToMultiByte(CP_UTF8, 0, wideStr.c_str(), -1, NULL, 0, NULL, NULL);
-	std::string result(bufferSize, 0);
-	WideCharToMultiByte(CP_UTF8, 0, wideStr.c_str(), -1, &result[0], bufferSize, NULL, NULL);
-	return result;
+	m_mail = mail;
 }
 
-std::string getExecutablePath()
+MailFolder::MailFolder()
 {
-	wchar_t buffer[MAX_PATH];
-	GetModuleFileName(NULL, buffer, MAX_PATH);
-	std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
-	std::wstring wpath = std::wstring(buffer).substr(0, pos);
-	return wideToNarrow(wpath);
+	// do nothing
 }
+
 
 #pragma endregion MailFolder
