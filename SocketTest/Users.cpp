@@ -83,9 +83,16 @@ UserFolder User::getFolder(int num)
 UserFolder User::goThroughFilters(MailFolder mail)
 {
 	Mail toGetMail = mail.getMail();
-	return UserFolder("");
-
-	// to be added the created functions
+	UserFolder temp = goThroughFrom(toGetMail);
+	if ("" != temp.getFolderName())
+		return temp;
+	temp = goThroughSubject(toGetMail);
+	if ("" != temp.getFolderName())
+		return temp;
+	temp = goThroughContent(toGetMail);
+	if ("" != temp.getFolderName())
+		return temp;
+	return m_Folders[0];
 }
 
 UserFolder User::goThroughFrom(Mail mail)

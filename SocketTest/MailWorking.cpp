@@ -14,12 +14,13 @@ bool MailWorking::receiveMail(const char* IP, int PORT, User& person)
     if (p_POP3_Client.login(IP, PORT, person) == false) {
         return false;
     }
-    while (true)
-    {
-        int sleepTime = person.getAutoLoad();
-        std::this_thread::sleep_for(std::chrono::minutes(sleepTime));
-        p_POP3_Client.receiveMail(person);;
-    }
+    //while (true)
+    //{
+    //    int sleepTime = person.getAutoLoad();
+    //    std::this_thread::sleep_for(std::chrono::minutes(sleepTime));
+    //    p_POP3_Client.receiveMail(person);
+    //}
+    p_POP3_Client.receiveMail(person);
     int choose = 10;
     UserFolder folderWorking = person.getFolder(1);
     std::string PathWantToSave = "";
