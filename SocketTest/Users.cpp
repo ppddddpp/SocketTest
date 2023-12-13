@@ -135,6 +135,20 @@ User::User(std::string filename)
 	m_Folders.push_back(Work);
 	UserFolder Spam("Spam");
 	m_Folders.push_back(Spam);
+
+	// Filters
+	while ("Filter:" != buffer)
+	{
+		getline(in, buffer);
+	}
+
+	while (!in.eof())
+	{
+		getline(in, buffer);
+		if ("" == buffer)
+			continue;
+		getFolderFromFilter(buffer).addFilter(buffer);
+	}
 }
 
 void User::moveMailToFolder(MailFolder mail, UserFolder& toFolder)
@@ -166,4 +180,18 @@ void User::moveMailToFolder(MailFolder mail, UserFolder& toFolder)
 	catch (const std::filesystem::filesystem_error& e) {
 		std::cout << "Error creating folder: " << e.what() << "\n";
 	}
+}
+
+UserFolder User::getFolderFromFilter(std::string filter)
+{
+	std::string folder = filter.substr(filter.find_last_of(' ') + 1);
+	if ("Project" == folder)
+		return m_Folders[1];
+	else if ("Important" == folder)
+		return m_Folders[2];
+	else if ("Work" == folder)
+		return m_Folders[3];
+	else if ("Spam" == folder)
+		return m_Folders[4];
+	return m_Folders[0];
 }

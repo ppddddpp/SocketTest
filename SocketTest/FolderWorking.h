@@ -39,6 +39,10 @@ public:
 class UserFolder
 {
 private:
+	std::vector<std::string> m_fromFilter;
+	std::vector<std::string> m_subjectFilter;
+	std::vector<std::string> m_contentFilter;
+	std::vector<std::string> m_spamFilter;
 	std::string m_folderName;
 	std::vector<MailFolder> m_ListOfMail;
 public:
@@ -71,6 +75,7 @@ public:
 	void exactMailDataDownloaded(std::string data);
 	std::vector<MailFolder> MailSubjectSameAs(std::string name);
 	std::vector<MailFolder> UnreadMail();
+	void addFilter(std::string filter);
 public:
 	UserFolder(std::string folderName);
 };

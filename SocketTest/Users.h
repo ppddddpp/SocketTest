@@ -38,5 +38,5 @@ public:
 	User(std::string filename);
 	UserFolder operator[](int num);
 	void moveMailToFolder(MailFolder mail, UserFolder& toFolder);
-	
+	UserFolder getFolderFromFilter(std::string filter);
 };
