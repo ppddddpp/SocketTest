@@ -7,9 +7,9 @@ std::string UserFolder::getMailData(int num)
 	return mailData;
 }
 
-void UserFolder::setDataMailAttachment(std::vector<char> mailAttachment, int num)
+void MailFolder::setDataMailAttachment(std::vector<char> mailAttachment, int num)
 {
-	m_ListOfMail[num].setMailAttachment(mailAttachment, num);
+	m_mail.setMailAttachment(mailAttachment, num);
 }
 
 MailFolder UserFolder::getMailAttachment(int num)
@@ -79,7 +79,7 @@ std::string UserFolder::getWorkingUserPath()
 	return "/." + getFolderName();
 }
 
-void UserFolder::exactMailDataDownloaded(std::string data)
+void MailFolder::extractMailDataDownloaded(std::string data)
 {
 	std::string localWorkingData = data;
 	std::string mailDataExacted = "";
@@ -89,7 +89,7 @@ void UserFolder::exactMailDataDownloaded(std::string data)
 	
 
 
-	std::vector<char>attachmentDataExacted;
+	std::vector<char>attachmentDataExtracted;
 	int countFile = -1;
 	size_t startPosAttachment = localWorkingData.find("[STARTOFATTACHMENT]" + '\r\n');
 	size_t endPosAttachment = localWorkingData.find("[ENDOFATTACHMENT]" + '\r\n');
@@ -100,9 +100,9 @@ void UserFolder::exactMailDataDownloaded(std::string data)
 			endPosAttachment - startPosAttachment - std::strlen("[STARTOFATTACHMENT]"));
 
 		std::vector<char> attachmentData(extractedAttachment.begin(), extractedAttachment.end());
-		attachmentDataExacted.insert(attachmentDataExacted.end(), attachmentData.begin(), attachmentData.end());
+		attachmentDataExtracted.insert(attachmentDataExtracted.end(), attachmentData.begin(), attachmentData.end());
 
-		setDataMailAttachment(attachmentDataExacted, countFile);
+		setDataMailAttachment(attachmentDataExtracted, countFile);
 
 		localWorkingData = localWorkingData.substr(endPosAttachment + std::strlen("[ENDOFATTACHMENT]"));
 		
@@ -198,6 +198,11 @@ std::string MailFolder::getMailAllData(std::string purpose)
 	return m_mail.getAllMailData(purpose);
 }
 
+Mail MailFolder::getMail()
+{
+	return m_mail;
+}
+
 void MailFolder::setMailName(int count)
 {
 	std::stringstream builder;
@@ -261,3 +266,23 @@ MailFolder::MailFolder()
 
 
 #pragma endregion MailFolder
+
+std::vector<std::string> UserFolder::getFromFilter()
+{
+	return m_fromFilter;
+}
+
+std::vector<std::string> UserFolder::getSubjectFilter()
+{
+	return m_subjectFilter;
+}
+
+std::vector<std::string> UserFolder::getContentFilter()
+{
+	return m_contentFilter;
+}
+
+std::vector<std::string> UserFolder::getSpamFilter()
+{
+	return m_spamFilter;
+}

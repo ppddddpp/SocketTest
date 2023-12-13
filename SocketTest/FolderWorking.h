@@ -18,6 +18,7 @@ public:
 	std::string getMailBasicData();
 	std::string getMailName();
 	std::string getMailAllData(std::string purpose);
+	Mail getMail();
 public:
 	void setMailName(int count);
 	void setMailSubject(std::string data);
@@ -28,6 +29,8 @@ public:
 	void setMailAttachment(std::vector<char> attachmentName, int num);
 public:
 	std::vector<char> getMailAttachment(std::string filename);
+	void extractMailDataDownloaded(std::string data);
+	void setDataMailAttachment(std::vector<char> mailAttachment, int num);
 public:
 	std::ofstream mailToFolder(std::string filename);
 	std::ofstream attachmentToFolder(std::string filename, int attachmentNumber);
@@ -57,7 +60,10 @@ public:
 	void setMailCC(std::string data, int num);
 	void setMailBCC(std::string data, int num);
 	void setMailBody(std::string data);
-	void setDataMailAttachment(std::vector<char> mailAttachment, int num);
+	std::vector<std::string> getFromFilter();
+	std::vector<std::string> getSubjectFilter();
+	std::vector<std::string> getContentFilter();
+	std::vector<std::string> getSpamFilter();
 public:
 	MailFolder getMailAttachment(int num);
 	MailFolder getMail(int num);
@@ -72,7 +78,6 @@ public:
 	void savedFileLocally(MailFolder mail, std::string& localFilePath, std::string fileWantToSave);
 	std::string getWorkingUserPath();
 public:
-	void exactMailDataDownloaded(std::string data);
 	std::vector<MailFolder> MailSubjectSameAs(std::string name);
 	std::vector<MailFolder> UnreadMail();
 	void addFilter(std::string filter);

@@ -80,6 +80,77 @@ UserFolder User::getFolder(int num)
 	return m_Folders[num];
 }
 
+UserFolder User::goThroughFilters(MailFolder mail)
+{
+	Mail toGetMail = mail.getMail();
+	return UserFolder("");
+
+	// to be added the created functions
+}
+
+UserFolder User::goThroughFrom(Mail mail)
+{
+	std::string from = mail.getFrom();
+	for (int i = 0; i < 5; i++)
+	{
+		std::vector<std::string> fromFilters = m_Folders[i].getFromFilter();
+		int size = fromFilters.size();
+		if (0 == size)
+			continue;
+		else
+		{
+			for (int j = 0; j < size; j++)
+			{
+				if (from == fromFilters[j])
+					return m_Folders[i];
+			}
+		}
+	}
+	return UserFolder("");
+}
+
+UserFolder User::goThroughSubject(Mail mail)
+{
+	std::string subject = mail.getSubject();
+	for (int i = 0; i < 5; i++)
+	{
+		std::vector<std::string> subjectFilters = m_Folders[i].getSubjectFilter();
+		int size = subjectFilters.size();
+		if (0 == size)
+			continue;
+		else
+		{
+			for (int j = 0; j < size; j++)
+			{
+				if (subject.npos != subject.find(" " + subjectFilters[j] + " "))
+					return m_Folders[i];
+			}
+		}
+	}
+	return UserFolder("");
+}
+
+UserFolder User::goThroughContent(Mail mail)
+{
+	std::string content = mail.getTextBody();
+	for (int i = 0; i < 5; i++)
+	{
+		std::vector<std::string> contentFilters = m_Folders[i].getContentFilter();
+		int size = contentFilters.size();
+		if (0 == size)
+			continue;
+		else
+		{
+			for (int j = 0; j < size; j++)
+			{
+				if (content.npos != content.find(" " + contentFilters[j] + " "))
+					return m_Folders[i];
+			}
+		}
+	}
+	return UserFolder("");
+}
+
 UserFolder User::operator[](int num)
 {
 	return m_Folders[num];

@@ -35,6 +35,12 @@ public:
 	int getSizeOfFolder();
 	UserFolder getFolder(int num);
 public:
+	UserFolder goThroughFilters(MailFolder mail);
+	UserFolder goThroughFrom(Mail mail);
+	UserFolder goThroughSubject(Mail mail);
+	UserFolder goThroughContent(Mail mail);
+
+public:
 	User(std::string filename);
 	UserFolder operator[](int num);
 	void moveMailToFolder(MailFolder mail, UserFolder& toFolder);

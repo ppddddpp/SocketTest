@@ -221,7 +221,7 @@ std::string Mail::getAllMailData(std::string purpose)
 		ThingToSend += i + ", ";
 	}
 	ThingToSend += "EndTo";
-	ThingToSend[ThingToSend.size() - 2] = ' ';
+	ThingToSend[ThingToSend.size()] = ' ';
 	ThingToSend += "\r\n";
 
 	ThingToSend += "Cc: ";
@@ -230,7 +230,7 @@ std::string Mail::getAllMailData(std::string purpose)
 		ThingToSend += i + ", ";
 	}
 	ThingToSend += "EndCC";
-	ThingToSend[ThingToSend.size() - 2] = ' ';
+	ThingToSend[ThingToSend.size()] = ' ';
 	ThingToSend += "\r\n";
 
 	ThingToSend += "From: " + m_From;

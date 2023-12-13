@@ -281,7 +281,7 @@ void POP3::receiveMail(User& person)
 	for (int i = 0; i < listMailReceive.size(); i++) {
 		if (IsExistedMail(listMailReceive[i].getMailAllData("check"), person) == false)
 		{
-			// config FIX LATER
+			
 			person[0].addMailToList(listMailReceive[i]);
 		}
 	}
