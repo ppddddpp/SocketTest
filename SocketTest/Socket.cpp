@@ -133,7 +133,7 @@ void SMTP::sendMail(Mail mail)
 	std::string To_ReceiverMail = "";
 	std::string CC_ReceiverMail = "";
 
-	for (int j = 0; j < mail.sizeofTo(); j++) {
+	for (int j = 0; j < mail.getToSize(); j++) {
 		To_ReceiverMail = mail.getTo(j);
 		m_SMTP_SOCKET.sendCommand("RCPT TO: " + To_ReceiverMail + "\r\n");
 		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
@@ -142,7 +142,7 @@ void SMTP::sendMail(Mail mail)
 		}
 	}
 
-	for (int j = 0; j < mail.sizeofCC(); j++) {
+	for (int j = 0; j < mail.getCCSize(); j++) {
 		CC_ReceiverMail = mail.getCC(j);
 		m_SMTP_SOCKET.sendCommand("RCPT TO: " + CC_ReceiverMail + "\r\n");
 		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
@@ -150,7 +150,7 @@ void SMTP::sendMail(Mail mail)
 			std::cout << "CC" + CC_ReceiverMail + " error";
 		}
 	}
-	for (int i = 0; i < mail.sizeofBCC(); i++) {
+	for (int i = 0; i < mail.getBCCSize(); i++) {
 		BCC_ReceiverMail = mail.getBCC(i);
 		m_SMTP_SOCKET.sendCommand("RCPT TO: " + BCC_ReceiverMail + "\r\n");
 		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
@@ -274,23 +274,23 @@ void POP3::receiveMail(User& person)
 		std::string returnMail = "RETR " + std::to_string(i + 1) + '\r' + '\n';
 		m_POP3_SOCKET.sendCommand(returnMail);
 		serverResponse = m_POP3_SOCKET.receiveServerResponse();
-		Mail buffer = getMailFromString(serverResponse);
+		Mail buffer(serverResponse);
 		listMailReceive.push_back(MailFolder(buffer));
 	}
 
 	for (int i = 0; i < listMailReceive.size(); i++) {
-		if (IsExistedMail(listMailReceive[i].getMailAllData("check"), person) == false)
+		if (IsExistedMail(listMailReceive[i].getMailAllData("save"), person) == false)
 		{
-			
-			person[0].addMailToList(listMailReceive[i]);
+			person.goThroughFilters(listMailReceive[i]).addMailToList(listMailReceive[i]);
+			for (int i = 0; i < 5; i++)
+			{
+				for (int j = 0; j < person[i].getSizeOfListMail(); i++)
+				{
+					person.moveMailToFolder(person[i].getMail(j), person[i]);
+				}
+			}
 		}
 	}
-}
-
-Mail POP3::getMailFromString(std::string mail)
-{
-	Mail buffer;
-	return Mail();
 }
 
 #pragma endregion POP3

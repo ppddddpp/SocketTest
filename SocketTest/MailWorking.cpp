@@ -14,22 +14,22 @@ bool MailWorking::receiveMail(const char* IP, int PORT, User& person)
     if (p_POP3_Client.login(IP, PORT, person) == false) {
         return false;
     }
-    //while (true)
-    //{
-    //    int sleepTime = person.getAutoLoad();
-    //    std::this_thread::sleep_for(std::chrono::minutes(sleepTime));
-    //    p_POP3_Client.receiveMail(person);
-    //}
+
     p_POP3_Client.receiveMail(person);
-    int choose = 10;
-    UserFolder folderWorking = person.getFolder(1);
-    std::string PathWantToSave = "";
-    std::string wantToSaveFile = "";
-    folderWorking.savedFileLocally(folderWorking.getMail(0), PathWantToSave, wantToSaveFile);
+    //UserFolder folderWorking = person.getFolder(1);
+    //std::string PathWantToSave = "";
+    //std::string wantToSaveFile = "";
+    //folderWorking.savedFileLocally(folderWorking.getMail(0), PathWantToSave, wantToSaveFile);
     //explain: the number is the order of file want to save ( the second file)
 }
 
-void Menu::display()
+bool MailWorking::openMail()
+{
+
+    return false;
+}
+
+void display(MailWorking& test, User& usertest, bool& isDone)
 {
     while (true)
     {
@@ -157,9 +157,8 @@ void Menu::display()
                 }
             }
             
-            User usertest("config.txt");
+            
             Mail email(usertest.getUserMail(), to, cc, bcc, newSubject, newContent, Attas);
-            MailWorking test;
 
             test.sendMail(usertest.getServerIP().c_str(), usertest.getPortSMTP(), usertest, email);
             std::cout << std::endl;
@@ -167,14 +166,14 @@ void Menu::display()
 
         else if ("2" == choice)
         {
-            User usertest("config.txt");
-            MailWorking test;
+
             test.receiveMail(usertest.getServerIP().c_str(), usertest.getPortPOP3(), usertest);
             std::cout << std::endl;
         }
 
         else if ("3" == choice)
         {
+            isDone = true;
             return;
 
             std::string buffer;
@@ -225,4 +224,28 @@ void Menu::display()
         }
         std::cout << std::endl;
     }
+}
+
+void Menu::start()
+{
+    MailWorking test;
+    User person("config.txt");
+
+    bool isDone = false;
+
+    std::thread mainDisplay(display, std::ref(test), std::ref(person), std::ref(isDone));
+
+    while (false == isDone)
+    {
+        int seconds = person.getAutoLoad();
+        std::this_thread::sleep_for(std::chrono::seconds(seconds));
+        test.getPOP3().receiveMail(person);
+    }
+
+    mainDisplay.join();
+}
+
+POP3& MailWorking::getPOP3()
+{
+    return p_POP3_Client;
 }

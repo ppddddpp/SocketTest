@@ -1,7 +1,8 @@
 #pragma once
 #include "Socket.h"
-#include <chrono>
 #include <thread>
+#include <future>
+#include <chrono>
 
 class MailWorking
 {
@@ -13,10 +14,14 @@ protected:
 public:
 	bool sendMail(const char* IP, int PORT, User person, Mail mail);
 	bool receiveMail(const char* IP, int PORT,User& person);
+	bool openMail();
+	POP3& getPOP3();
+	
 };
 
 class Menu
 {
 public:
-	void display();
+	void start();
 };
+void display(MailWorking& test, User& person, bool& isDone);

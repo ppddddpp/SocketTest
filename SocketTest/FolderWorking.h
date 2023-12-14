@@ -32,8 +32,8 @@ public:
 	void extractMailDataDownloaded(std::string data);
 	void setDataMailAttachment(std::vector<char> mailAttachment, int num);
 public:
-	std::ofstream mailToFolder(std::string filename);
-	std::ofstream attachmentToFolder(std::string filename, int attachmentNumber);
+	void mailToFolder(std::string folderName);
+	void attachmentToFolder(std::string folderName, int attachmentNumber);
 public:
 	MailFolder(Mail mail);
 	MailFolder();

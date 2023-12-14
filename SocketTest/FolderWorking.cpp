@@ -125,8 +125,12 @@ void UserFolder::addFilter(std::string filter)
 			if (filter.npos == filter.find(','))
 			{
 				int startOfEmailAddr = filter.find_first_of(' ');
-				m_fromFilter.push_back(filter.substr(startOfEmailAddr + 1,
-					filter.find_first_of('-') - startOfEmailAddr - 2));
+				if ("..." != filter.substr(startOfEmailAddr + 1,
+					filter.find_first_of('-') - startOfEmailAddr - 2))
+				{
+					m_fromFilter.push_back(filter.substr(startOfEmailAddr + 1,
+						filter.find_first_of('-') - startOfEmailAddr - 2));
+				}
 			}
 		}
 	}
@@ -230,28 +234,63 @@ std::vector<char> MailFolder::getMailAttachment(std::string filename)
 	return m_mail.getAttachment(filename);
 }
 
-std::ofstream MailFolder::mailToFolder(std::string folderName)
+void MailFolder::mailToFolder(std::string folderName)
 {
 	std::string mailPath = "./" + folderName + "./" + getMailName() + ".txt";
 	std::ofstream mailAsFile(mailPath);
 
-	//
+	// To
+	mailAsFile << "To: ";
+	for (int i = 0; i < m_mail.getToSize(); i++)
+	{
+		if (m_mail.getToSize() - 1 == i)
+			mailAsFile << m_mail.getTo(i);
+		else mailAsFile << m_mail.getTo(i) << ", ";
+	}
+	mailAsFile << '\n';
 
-	//questionable file path or return void?
-	std::string mailFilePath = mailPath;
-	return std::ofstream(mailFilePath);
+	// Cc
+	mailAsFile << "CC: ";
+	for (int i = 0; i < m_mail.getCCSize(); i++)
+	{
+		if (m_mail.getToSize() - 1 == i)
+			mailAsFile << m_mail.getCC(i);
+		else mailAsFile << m_mail.getCC(i) << ", ";
+	}
+	mailAsFile << '\n';
+
+	// From
+	mailAsFile << "From: ";
+	mailAsFile << m_mail.getFrom();
+	mailAsFile << '\n';
+
+	//Subject
+	mailAsFile << m_mail.getSubject();
+	mailAsFile << '\n';
+	mailAsFile << '\n';
+
+	//Contents
+	mailAsFile << m_mail.getTextBody();
+	return;
 }
 
-std::ofstream MailFolder::attachmentToFolder(std::string folderName, int attachmentNumber)
+void MailFolder::attachmentToFolder(std::string folderName, int attachmentNumber)
 {
 	std::string mailPath = "./" + folderName + "./" + m_mail.getAttachmentFilename(attachmentNumber) + "." + m_mail.getAttachmentFileType(attachmentNumber);
-	std::ofstream mailAsFile(mailPath);
+	std::ofstream mailAsFile(mailPath, std::ios::binary);
 
-	//
-
-	//questionable file path or return void?
-	std::string mailFilePath = mailPath;
-	return std::ofstream(mailFilePath);
+	std::string fileData = "";
+	for (char i : m_mail.getAttachment1(attachmentNumber))
+	{
+		fileData += i;
+	}
+	std::vector <unsigned char> decodedFileData = m_mail.base64_decode(fileData);
+	for (char i : decodedFileData)
+	{
+		char buf[1] = {i};
+		mailAsFile.write(buf, sizeof(buf));
+	}
+	return;
 }
 
 MailFolder::MailFolder(Mail mail)

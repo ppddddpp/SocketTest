@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <sstream>
 
 class Attachment {
 private:
@@ -21,7 +22,7 @@ public:
 	std::size_t getSizeOfFile();
 public:
 	Attachment();
-	void deleteInvaidAttachment(Attachment nameAttachment);
+	void deleteInvalidAttachment(Attachment nameAttachment);
 	Attachment(std::string filename, int& size);
 };
 
@@ -39,8 +40,11 @@ private:
 public:
 	std::string getFrom();
 	std::string getTo(int num);
+	int getToSize();
 	std::string getCC(int num);
+	int getCCSize();
 	std::string getBCC(int num);
+	int getBCCSize();
 	std::string getSubject();
 	std::string getTextBody();
 	std::string getReadStatus();
@@ -59,17 +63,16 @@ public:
 	void setbaseUnread();
 	void setMailAttachment(std::vector<char> attachmentData, int num);
 	void addAttachmentToSend(std::string& filename);
-	int sizeofTo();
-	int sizeofCC();
-	int sizeofBCC();
 	size_t getSizeOfAttachments();
 	void setAsRead();
 	void setAsUnread();
 
 public:
 	std::string to_base64(std::vector<char>& data);
+	std::vector<unsigned char> base64_decode(std::string const& encoded_string);
 public:
 	Mail();
+	Mail(std::string data);
 	Mail(std::string From,
 		std::vector<std::string> To,
 		std::vector<std::string> CC,

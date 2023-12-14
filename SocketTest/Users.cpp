@@ -80,22 +80,19 @@ UserFolder User::getFolder(int num)
 	return m_Folders[num];
 }
 
-UserFolder User::goThroughFilters(MailFolder mail)
+UserFolder& User::goThroughFilters(MailFolder mail)
 {
 	Mail toGetMail = mail.getMail();
-	UserFolder temp = goThroughFrom(toGetMail);
-	if ("" != temp.getFolderName())
-		return temp;
-	temp = goThroughSubject(toGetMail);
-	if ("" != temp.getFolderName())
-		return temp;
-	temp = goThroughContent(toGetMail);
-	if ("" != temp.getFolderName())
-		return temp;
+	if (m_Folders[0].getFolderName() != goThroughFrom(toGetMail).getFolderName())
+		return goThroughFrom(toGetMail);
+	else if (m_Folders[0].getFolderName() != goThroughSubject(toGetMail).getFolderName())
+		return goThroughSubject(toGetMail);
+	else if (m_Folders[0].getFolderName() != goThroughContent(toGetMail).getFolderName())
+		return goThroughContent(toGetMail);
 	return m_Folders[0];
 }
 
-UserFolder User::goThroughFrom(Mail mail)
+UserFolder& User::goThroughFrom(Mail mail)
 {
 	std::string from = mail.getFrom();
 	for (int i = 0; i < 5; i++)
@@ -113,10 +110,10 @@ UserFolder User::goThroughFrom(Mail mail)
 			}
 		}
 	}
-	return UserFolder("");
+	return m_Folders[0];
 }
 
-UserFolder User::goThroughSubject(Mail mail)
+UserFolder& User::goThroughSubject(Mail mail)
 {
 	std::string subject = mail.getSubject();
 	for (int i = 0; i < 5; i++)
@@ -129,15 +126,15 @@ UserFolder User::goThroughSubject(Mail mail)
 		{
 			for (int j = 0; j < size; j++)
 			{
-				if (subject.npos != subject.find(" " + subjectFilters[j] + " "))
+				if (subject.npos != subject.find(subjectFilters[j]))
 					return m_Folders[i];
 			}
 		}
 	}
-	return UserFolder("");
+	return m_Folders[0];
 }
 
-UserFolder User::goThroughContent(Mail mail)
+UserFolder& User::goThroughContent(Mail mail)
 {
 	std::string content = mail.getTextBody();
 	for (int i = 0; i < 5; i++)
@@ -150,15 +147,15 @@ UserFolder User::goThroughContent(Mail mail)
 		{
 			for (int j = 0; j < size; j++)
 			{
-				if (content.npos != content.find(" " + contentFilters[j] + " "))
+				if (content.npos != content.find(contentFilters[j]))
 					return m_Folders[i];
 			}
 		}
 	}
-	return UserFolder("");
+	return m_Folders[0];
 }
 
-UserFolder User::operator[](int num)
+UserFolder& User::operator[](int num)
 {
 	return m_Folders[num];
 }
@@ -170,7 +167,6 @@ User::User(std::string filename)
 
 	// General
 	std::getline(in, buffer);
-	// ???
 
 	// Username
 	std::getline(in, buffer);
@@ -214,6 +210,30 @@ User::User(std::string filename)
 	UserFolder Spam("Spam");
 	m_Folders.push_back(Spam);
 
+	std::string folderPath = "./" + m_userMail;
+	try {
+		if (!std::filesystem::exists(folderPath)) {
+			std::filesystem::create_directories(folderPath);
+		}
+	}
+	catch (const std::filesystem::filesystem_error& e) {
+		std::cout << "Error creating folder: " << e.what() << "\n";
+	}
+
+	for (int i = 0; i < 5; i++)
+	{
+		folderPath = "./" + m_userMail + "/" + m_Folders[i].getFolderName();
+		try {
+			if (!std::filesystem::exists(folderPath)) {
+				std::filesystem::create_directories(folderPath);
+			}
+		}
+		catch (const std::filesystem::filesystem_error& e) {
+			std::cout << "Error creating folder: " << e.what() << "\n";
+		}
+	}
+
+
 	// Filters
 	while ("Filter:" != buffer)
 	{
@@ -232,35 +252,38 @@ User::User(std::string filename)
 void User::moveMailToFolder(MailFolder mail, UserFolder& toFolder)
 {
 	mail.setMailName(toFolder.getSizeOfListMail());
-	std::string folderPath = "./" + toFolder.getFolderName() + "./" + mail.getMailName();
+	std::string folderPath = "./" + m_userMail + '/' + toFolder.getFolderName() + "./" + mail.getMailName();
 	try {
 		if (!std::filesystem::exists(folderPath)) {
 			std::filesystem::create_directories(folderPath);
 			std::cout << "Folder created successfully.\n";
+			mail.mailToFolder(folderPath);
+			for (int i = 0; i < mail.getMail().getSizeOfAttachments(); i++)
+				mail.attachmentToFolder(folderPath, i);
 		}
 		else {
 			std::cout << "Folder already exists.\n";
 		}
-		//remember to add mailPath
-		std::string mailPath = "";
+		////remember to add mailPath
+		//std::string mailPath = folderPath;
 
-		std::filesystem::path mailFilePath = mailPath;
-		std::string fileName = mailFilePath.filename().string();
+		//std::filesystem::path mailFilePath = mailPath;
+		//std::string fileName = mailFilePath.filename().string();
 
-		// Construct the destination path
-		std::filesystem::path destinationPath = folderPath;
-		destinationPath /= fileName;
+		//// Construct the destination path
+		//std::filesystem::path destinationPath = folderPath;
+		//destinationPath /= mail.getMailName();
 
-		// Copy the file to the destination folder
-		std::filesystem::copy(mailPath, destinationPath,
-			std::filesystem::copy_options::overwrite_existing);
+		//// Copy the file to the destination folder
+		//std::filesystem::copy(mailPath, destinationPath,
+		//	std::filesystem::copy_options::overwrite_existing);
 	}
 	catch (const std::filesystem::filesystem_error& e) {
 		std::cout << "Error creating folder: " << e.what() << "\n";
 	}
 }
 
-UserFolder User::getFolderFromFilter(std::string filter)
+UserFolder& User::getFolderFromFilter(std::string filter)
 {
 	std::string folder = filter.substr(filter.find_last_of(' ') + 1);
 	if ("Project" == folder)

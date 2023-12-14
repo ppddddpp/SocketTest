@@ -58,9 +58,10 @@ std::size_t Attachment::getSizeOfFile()
 
 Attachment::Attachment()
 {
+	// do nothing
 }
 
-void Attachment::deleteInvaidAttachment(Attachment nameAttachment)
+void Attachment::deleteInvalidAttachment(Attachment nameAttachment)
 {
 	//perform the delete attachment
 }
@@ -89,14 +90,29 @@ std::string Mail::getTo(int num)
 	return m_To[num];
 }
 
+int Mail::getToSize()
+{
+	return m_To.size();
+}
+
 std::string Mail::getCC(int num)
 {
 	return m_CC[num];
 }
 
+int Mail::getCCSize()
+{
+	return m_CC.size();
+}
+
 std::string Mail::getBCC(int num)
 {
 	return m_BCC[num];
+}
+
+int Mail::getBCCSize()
+{
+	return m_BCC.size();
 }
 
 std::string Mail::getSubject()
@@ -176,21 +192,6 @@ void Mail::setMailAttachment(std::vector<char> attachmentData,int num)
 	m_attachments[num].setFileContent(attachmentData);
 }
 
-int Mail::sizeofTo()
-{
-	return m_To.size();
-}
-
-int Mail::sizeofCC()
-{
-	return m_CC.size();
-}
-
-int Mail::sizeofBCC()
-{
-	return m_BCC.size();
-}
-
 size_t Mail::getSizeOfAttachments()
 {
 	return m_attachments.size();
@@ -220,8 +221,9 @@ std::string Mail::getAllMailData(std::string purpose)
 	{
 		ThingToSend += i + ", ";
 	}
-	ThingToSend += "EndTo";
-	ThingToSend[ThingToSend.size()] = ' ';
+	ThingToSend[ThingToSend.size() - 2] = ' ';
+	//ThingToSend += "EndTo";
+	//ThingToSend[ThingToSend.size()] = ' ';
 	ThingToSend += "\r\n";
 
 	ThingToSend += "Cc: ";
@@ -229,22 +231,23 @@ std::string Mail::getAllMailData(std::string purpose)
 	{
 		ThingToSend += i + ", ";
 	}
-	ThingToSend += "EndCC";
-	ThingToSend[ThingToSend.size()] = ' ';
+	ThingToSend[ThingToSend.size() - 2] = ' ';
+	//ThingToSend += "EndCC";
+	//ThingToSend[ThingToSend.size()] = ' ';
 	ThingToSend += "\r\n";
 
 	ThingToSend += "From: " + m_From;
-	ThingToSend += "EndFrom";
+	//ThingToSend += "EndFrom";
 	ThingToSend += "\r\n";
 
 	ThingToSend += "Subject: " + getSubject();
-	ThingToSend += "EndSubject";
+	//ThingToSend += "EndSubject";
 
 	ThingToSend += "\r\n";
 	ThingToSend += "\r\n";
 
 	ThingToSend += "Body:" + getTextBody();
-	ThingToSend += "EndBody";
+	//ThingToSend += "EndBody";
 
 	if (purpose == "send" || purpose == "check") {
 		//send attachments
@@ -268,10 +271,18 @@ std::string Mail::getAllMailData(std::string purpose)
 		std::string AttachmentInfo = " List of attachments: \r\n";
 		std::string AttachmentAsStr = "";
 		for (int i = 0; i < getSizeOfAttachments(); i++) {
-			AttachmentInfo = getAttachmentFilename(i) + "." 
+			AttachmentInfo = getAttachmentFilename(i) + "."
+				+ getAttachmentFileType(i) + "\r\n";
+			setAsRead();
+		}
+	}
+	else if (purpose == "open") {
+		std::string AttachmentInfo = " List of attachments: \r\n";
+		std::string AttachmentAsStr = "";
+		for (int i = 0; i < getSizeOfAttachments(); i++) {
+			AttachmentInfo = getAttachmentFilename(i) + "."
 				+ getAttachmentFileType(i) + "\r\n";
 		}
-		setAsRead();
 	}
 	return ThingToSend;
 }
@@ -283,7 +294,7 @@ void Mail::addAttachmentToSend(std::string& filename)
 	int maxSize = 3 * 1024 * 1024;
 	if (size > maxSize) {
 		std::cout << "Attachment file size is too large ! 3MB is maximum" << std::endl;
-		Attachment::deleteInvaidAttachment(attachmentNeedToAdd);
+		Attachment::deleteInvalidAttachment(attachmentNeedToAdd);
 	}
 	m_attachments.emplace_back(attachmentNeedToAdd);
 }
@@ -291,6 +302,86 @@ void Mail::addAttachmentToSend(std::string& filename)
 Mail::Mail()
 {
 	m_isRead = false;
+}
+
+Mail::Mail(std::string data)
+{
+	m_isRead = false;
+	std::stringstream mailData(data);
+	std::string buffer;
+	getline(mailData, buffer);
+
+	// To
+	int count = 0;
+	getline(mailData, buffer);
+	while (buffer.npos != buffer.find(','))
+	{
+		setTo(buffer.substr(buffer.find(' ') + 1, buffer.find(',') - buffer.find(' ') - 1), count);
+		count++;
+		buffer = buffer.substr(buffer.find(','));
+	}
+	setTo(buffer.substr(buffer.find(' ') + 1, buffer.find_last_of(' ') - buffer.find(' ') - 1), count);
+
+	// Cc
+	count = 0;
+	getline(mailData, buffer);
+	while (buffer.npos != buffer.find(','))
+	{
+		setCC(buffer.substr(buffer.find(' ') + 1, buffer.find(',') - buffer.find(' ') - 1), count);
+		count++;
+		buffer = buffer.substr(buffer.find(','));
+	}
+	setCC(buffer.substr(buffer.find(' ') + 1, buffer.find_last_of(' ') - buffer.find(' ') - 1), count);
+
+	// From
+	getline(mailData, buffer);
+	setFrom(buffer.substr(buffer.find(' ') + 1, buffer.find_last_of('\r') - buffer.find(' ') - 1));
+
+	// Subject
+	getline(mailData, buffer);
+	buffer = buffer.substr(0, buffer.size() - 1);
+	setSubject(buffer);
+
+	// Contents
+	std::string bodyText = "";
+	getline(mailData, buffer);
+	buffer = buffer.substr(0, buffer.size() - 1);
+	while ("BASE64!" != buffer && !mailData.eof())
+	{
+		buffer += '\n';
+		bodyText += buffer;
+		getline(mailData, buffer);
+		buffer = buffer.substr(0, buffer.size() - 1);
+	}
+	setBodyText(bodyText);
+
+	// Attachments
+	while (!mailData.eof())
+	{
+		Attachment newAttachment;
+		getline(mailData, buffer);
+		newAttachment.setFilename(buffer.substr(buffer.find(':') + 1, buffer.find('\r') - buffer.find(':') - 1));
+		getline(mailData, buffer);
+		newAttachment.setFileType(buffer.substr(buffer.find(':') + 1, buffer.find('\r') - buffer.find(':') - 1));
+		getline(mailData, buffer);
+		std::vector<char> inFileContents;
+		getline(mailData, buffer);
+		while (" [ENDOFATTACHMENT]\r" != buffer)
+		{
+			int size = buffer.size() - 1;
+			for (int i = 0; i < size; i++)
+			{
+				inFileContents.push_back(buffer[i]);
+			}
+			getline(mailData, buffer);
+		}
+		newAttachment.setFileContent(inFileContents);
+		m_attachments.push_back(newAttachment);
+		while ("BASE64!\r" != buffer && !mailData.eof())
+		{
+			getline(mailData, buffer);
+		}
+	}
 }
 
 Mail::Mail(std::string From, 
@@ -388,5 +479,51 @@ std::string Mail::to_base64(std::vector<char>& data)
 	return ouStr;
 }
 
+static inline bool is_base64(unsigned char c) {
+	return (isalnum(c) || (c == '+') || (c == '/'));
+}
+
+typedef unsigned char BYTE;
+std::vector<BYTE> Mail::base64_decode(std::string const& encoded_string) {
+	const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	int in_len = encoded_string.size();
+	int i = 0;
+	int j = 0;
+	int in_ = 0;
+	BYTE char_array_4[4], char_array_3[3];
+	std::vector<BYTE> ret;
+
+	while (in_len-- && (encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
+		char_array_4[i++] = encoded_string[in_]; in_++;
+		if (i == 4) {
+			for (i = 0; i < 4; i++)
+				char_array_4[i] = base64_chars.find(char_array_4[i]);
+
+			char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+			char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+			char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+			for (i = 0; (i < 3); i++)
+				ret.push_back(char_array_3[i]);
+			i = 0;
+		}
+	}
+
+	if (i) {
+		for (j = i; j < 4; j++)
+			char_array_4[j] = 0;
+
+		for (j = 0; j < 4; j++)
+			char_array_4[j] = base64_chars.find(char_array_4[j]);
+
+		char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+		char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+		char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+		for (j = 0; (j < i - 1); j++) ret.push_back(char_array_3[j]);
+	}
+
+	return ret;
+}
 
 #pragma endregion Mail
