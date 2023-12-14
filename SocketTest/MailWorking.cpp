@@ -241,6 +241,7 @@ void display(MailWorking& test, User& usertest, bool& isDone, bool& connectedToP
 
         else if ("3" == choice)
         {
+            connectedToPOP3 = false;
             isDone = true;
             return;
         }
@@ -251,8 +252,18 @@ void display(MailWorking& test, User& usertest, bool& isDone, bool& connectedToP
 void Menu::start()
 {
     MailWorking test;
-    User person("config.txt");
-
+    std::string fileToRead;
+    //std::ifstream testFile("config.txt");
+    //if (testFile.is_open())
+    //{
+    //    fileToRead = "config.txt";
+    //}
+    std::ifstream testFile("config.json");
+    if (testFile.is_open())
+    {
+        fileToRead = "config.json";
+    }
+    User person(fileToRead);
     bool isDone = false;
     bool connectedToPOP3 = false;
     std::thread mainDisplay(display, std::ref(test), std::ref(person), std::ref(isDone), std::ref(connectedToPOP3));

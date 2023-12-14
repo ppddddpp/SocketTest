@@ -21,11 +21,6 @@ public:
 	Mail getMail();
 public:
 	void setMailName(int count);
-	void setMailSubject(std::string data);
-	void setMailTo(std::string data, int num);
-	void setMailCC(std::string data, int num);
-	void setMailBCC(std::string data, int num);
-	void setMailBody(std::string data);
 	void setMailAttachment(std::vector<char> attachmentName, int num);
 public:
 	std::vector<char> getMailAttachment(std::string filename);
@@ -53,13 +48,7 @@ public:
 	std::string getFolderName();
 	void addMailToList(MailFolder& mail);
 	void saveMail(MailFolder mail);
-	void deleteMail(MailFolder mail);
 public:
-	void setMailSubject(std::string data);
-	void setMailTo(std::string data, int num);
-	void setMailCC(std::string data, int num);
-	void setMailBCC(std::string data, int num);
-	void setMailBody(std::string data);
 	std::vector<std::string> getFromFilter();
 	std::vector<std::string> getSubjectFilter();
 	std::vector<std::string> getContentFilter();
@@ -78,8 +67,6 @@ public:
 	void savedFileLocally(MailFolder mail, std::string& localFilePath, std::string fileWantToSave);
 	std::string getWorkingUserPath();
 public:
-	std::vector<MailFolder> MailSubjectSameAs(std::string name);
-	std::vector<MailFolder> UnreadMail();
 	void addFilter(std::string filter);
 public:
 	UserFolder(std::string folderName);

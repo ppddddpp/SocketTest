@@ -10,19 +10,19 @@
   },
   "filter": [
     {
-      "from": ["ahihi@testing.com", "ahuu@testing.com"],
+      "From": ["ahihi@testing.com", "ahuu@testing.com"],
       "toFolder": "Project"
     },
     {
-      "subject": ["urgent", "ASAP"],
+      "Subject": ["urgent", "ASAP"],
       "toFolder": "Important"
     },
     {
-      "content": ["report", "meeting"],
+      "Content": ["report", "meeting"],
       "toFolder": "Work"
     },
     {
-      "spam": ["virus", "hack", "crack"],
+      "Spam": ["virus", "hack", "crack"],
       "toFolder": "Spam"
     }
   ]

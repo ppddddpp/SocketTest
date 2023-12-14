@@ -181,67 +181,57 @@ UserFolder& User::operator[](int num)
 
 User::User(std::string filename)
 {
-	std::ifstream in(filename);
-	std::string buffer;
-
-	// General
-	std::getline(in, buffer);
-
-	// Username
-	std::getline(in, buffer);
-	setUsername(buffer.substr(buffer.find(':') + 1, buffer.find('<') - buffer.find(':') - 1));
-
-	// UserMail
-	setUserMail(buffer.substr(buffer.find('<') + 1, buffer.find('>') - buffer.find('<') - 1));
-
-	// Password
-	std::getline(in, buffer);
-	setPassword(buffer.substr(buffer.find(':') + 1));
-
-	// Server IP
-	std::getline(in, buffer);
-	const char* temp = new char[100];
-	buffer = buffer.substr(buffer.find(':') + 2);
-	temp = buffer.c_str();
-	setServerIP(temp);
-
-	// SMTP
-	std::getline(in, buffer);
-	setPortSMTP(std::stoi(buffer.substr(buffer.find(':') + 1)));
-
-	// POP3
-	std::getline(in, buffer);
-	setPortPOP3(std::stoi(buffer.substr(buffer.find(':') + 1)));
-
-	// Autoload
-	std::getline(in, buffer);
-	setAutoLoad(std::stoi(buffer.substr(buffer.find(':') + 1)));
-
-	// Folders
-	UserFolder Inbox("Inbox");
-	m_Folders.push_back(Inbox);
-	UserFolder Project("Project");
-	m_Folders.push_back(Project);
-	UserFolder Important("Important");
-	m_Folders.push_back(Important);
-	UserFolder Work("Work");
-	m_Folders.push_back(Work);
-	UserFolder Spam("Spam");
-	m_Folders.push_back(Spam);
-
-	std::string folderPath = "./" + m_userMail;
-	try {
-		if (!std::filesystem::exists(folderPath)) {
-			std::filesystem::create_directories(folderPath);
-		}
-	}
-	catch (const std::filesystem::filesystem_error& e) {
-		std::cout << "Error creating folder: " << e.what() << "\n";
-	}
-
-	for (int i = 0; i < 5; i++)
+	if ("config.txt" == filename)
 	{
-		folderPath = "./" + m_userMail + "/" + m_Folders[i].getFolderName();
+		std::ifstream in(filename);
+		std::string buffer;
+
+		// General
+		std::getline(in, buffer);
+
+		// Username
+		std::getline(in, buffer);
+		setUsername(buffer.substr(buffer.find(':') + 1, buffer.find('<') - buffer.find(':') - 1));
+
+		// UserMail
+		setUserMail(buffer.substr(buffer.find('<') + 1, buffer.find('>') - buffer.find('<') - 1));
+
+		// Password
+		std::getline(in, buffer);
+		setPassword(buffer.substr(buffer.find(':') + 1));
+
+		// Server IP
+		std::getline(in, buffer);
+		const char* temp = new char[100];
+		buffer = buffer.substr(buffer.find(':') + 2);
+		temp = buffer.c_str();
+		setServerIP(temp);
+
+		// SMTP
+		std::getline(in, buffer);
+		setPortSMTP(std::stoi(buffer.substr(buffer.find(':') + 1)));
+
+		// POP3
+		std::getline(in, buffer);
+		setPortPOP3(std::stoi(buffer.substr(buffer.find(':') + 1)));
+
+		// Autoload
+		std::getline(in, buffer);
+		setAutoLoad(std::stoi(buffer.substr(buffer.find(':') + 1)));
+
+		// Folders
+		UserFolder Inbox("Inbox");
+		m_Folders.push_back(Inbox);
+		UserFolder Project("Project");
+		m_Folders.push_back(Project);
+		UserFolder Important("Important");
+		m_Folders.push_back(Important);
+		UserFolder Work("Work");
+		m_Folders.push_back(Work);
+		UserFolder Spam("Spam");
+		m_Folders.push_back(Spam);
+
+		std::string folderPath = "./" + m_userMail;
 		try {
 			if (!std::filesystem::exists(folderPath)) {
 				std::filesystem::create_directories(folderPath);
@@ -250,21 +240,146 @@ User::User(std::string filename)
 		catch (const std::filesystem::filesystem_error& e) {
 			std::cout << "Error creating folder: " << e.what() << "\n";
 		}
+
+		for (int i = 0; i < 5; i++)
+		{
+			folderPath = "./" + m_userMail + "/" + m_Folders[i].getFolderName();
+			try {
+				if (!std::filesystem::exists(folderPath)) {
+					std::filesystem::create_directories(folderPath);
+				}
+			}
+			catch (const std::filesystem::filesystem_error& e) {
+				std::cout << "Error creating folder: " << e.what() << "\n";
+			}
+		}
+
+		// Filters
+		while ("Filter:" != buffer)
+		{
+			std::getline(in, buffer);
+		}
+
+		while (!in.eof())
+		{
+			std::getline(in, buffer);
+			if ("" == buffer)
+				continue;
+			getFolderFromFilter(buffer).addFilter(buffer);
+		}
 	}
-
-
-	// Filters
-	while ("Filter:" != buffer)
+	else if ("config.json" == filename)
 	{
-		getline(in, buffer);
-	}
+		std::string buffer;
+		std::ifstream inFile(filename);
+		std::getline(inFile, buffer);
+		std::getline(inFile, buffer);
+		std::getline(inFile, buffer);
+		std::getline(inFile, buffer);
+		
+		// Username
+		buffer = buffer.substr(buffer.find(':') + 1);
+		setUsername(buffer.substr(buffer.find('"') + 1, buffer.find('<') - buffer.find('"') - 1));
 
-	while (!in.eof())
-	{
-		getline(in, buffer);
-		if ("" == buffer)
-			continue;
-		getFolderFromFilter(buffer).addFilter(buffer);
+		// UserMail
+		setUserMail(buffer.substr(buffer.find('<') + 1, buffer.find('>') - buffer.find('<') - 1));
+
+		// Password
+		std::getline(inFile, buffer);
+		buffer = buffer.substr(buffer.find(':') + 1);
+		setPassword(buffer.substr(buffer.find('"') + 1, buffer.find_last_of('"') - buffer.find('"') - 1));
+
+		// Server IP
+		std::getline(inFile, buffer);
+		buffer = buffer.substr(buffer.find(':') + 1);
+		setServerIP(buffer.substr(buffer.find('"') + 1, buffer.find_last_of('"') - buffer.find('"') - 1).c_str());
+
+		// SMTP
+		std::getline(inFile, buffer);
+		buffer = buffer.substr(buffer.find(':') + 1);
+		setPortSMTP(std::stoi(buffer.substr(buffer.find(' ') + 1, buffer.find_last_of(',') - buffer.find(' ') - 1)));
+
+		// POP3
+		std::getline(inFile, buffer);
+		buffer = buffer.substr(buffer.find(':') + 1);
+		setPortPOP3(std::stoi(buffer.substr(buffer.find(' ') + 1, buffer.find_last_of(',') - buffer.find(' ') - 1)));
+
+		// Autoload
+		std::getline(inFile, buffer);
+		setAutoLoad(std::stoi(buffer.substr(buffer.find_last_of(' ') + 1)));
+
+		// Folders
+		UserFolder Inbox("Inbox");
+		m_Folders.push_back(Inbox);
+		UserFolder Project("Project");
+		m_Folders.push_back(Project);
+		UserFolder Important("Important");
+		m_Folders.push_back(Important);
+		UserFolder Work("Work");
+		m_Folders.push_back(Work);
+		UserFolder Spam("Spam");
+		m_Folders.push_back(Spam);
+
+		std::string folderPath = "./" + m_userMail;
+		try {
+			if (!std::filesystem::exists(folderPath)) {
+				std::filesystem::create_directories(folderPath);
+			}
+		}
+		catch (const std::filesystem::filesystem_error& e) {
+			std::cout << "Error creating folder: " << e.what() << "\n";
+		}
+
+		for (int i = 0; i < 5; i++)
+		{
+			folderPath = "./" + m_userMail + "/" + m_Folders[i].getFolderName();
+			try {
+				if (!std::filesystem::exists(folderPath)) {
+					std::filesystem::create_directories(folderPath);
+				}
+			}
+			catch (const std::filesystem::filesystem_error& e) {
+				std::cout << "Error creating folder: " << e.what() << "\n";
+			}
+		}
+
+		// Filters
+		std::getline(inFile, buffer);
+		std::getline(inFile, buffer);
+		while (!inFile.eof())
+		{
+			std::string fromJsonToTxt;
+			std::getline(inFile, buffer);
+			if (buffer.npos != buffer.find(']'))
+			{
+				break;
+			}
+			std::getline(inFile, buffer);
+			fromJsonToTxt = buffer.substr(buffer.find_first_of('"') + 1, buffer.find_first_of(':') - buffer.find_first_of('"') - 2) + ":";
+			if (fromJsonToTxt.npos != fromJsonToTxt.find("From"))
+			{
+				buffer = buffer.substr(buffer.find('[') + 1);
+				while (buffer.npos != buffer.find(','))
+				{
+					fromJsonToTxt += " " + buffer.substr(buffer.find_first_of('"') + 1, buffer.find_first_of(',') - buffer.find_first_of('"') - 2) + ",";
+					buffer = buffer.substr(buffer.find(',') + 1);
+				}
+			}
+			else
+			{
+				buffer = buffer.substr(buffer.find('[') + 1);
+				while (buffer.npos != buffer.find(','))
+				{
+					fromJsonToTxt += " " + buffer.substr(buffer.find_first_of('"'), buffer.find_first_of(',') - buffer.find_first_of('"')) + ",";
+					buffer = buffer.substr(buffer.find(',') + 1);
+				}
+			}
+			std::getline(inFile, buffer);
+			buffer = buffer.substr(buffer.find(':') + 1);
+			fromJsonToTxt += " - To folder: " + buffer.substr(buffer.find_first_of('"') + 1, buffer.find_last_of('"') - buffer.find_first_of('"') - 1);
+			getFolderFromFilter(fromJsonToTxt).addFilter(fromJsonToTxt);
+			std::getline(inFile, buffer);
+		}
 	}
 }
 

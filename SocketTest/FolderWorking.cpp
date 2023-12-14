@@ -42,16 +42,6 @@ void UserFolder::saveMail(MailFolder mail)
 	m_ListOfMail.push_back(mail);
 }
 
-void UserFolder::deleteMail(MailFolder mail)
-{
-
-}
-
-void UserFolder::setMailSubject(std::string data)
-{
-	
-}
-
 void UserFolder::openMailChosen(int num)
 {
 	m_ListOfMail[num].openMail();

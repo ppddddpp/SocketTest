@@ -357,7 +357,7 @@ Mail::Mail(std::string data)
 	setSubject(buffer);
 
 	// Contents
-	std::string bodyText = "";
+	std::string bodyText = " ";
 	getline(mailData, buffer);
 	buffer = buffer.substr(0, buffer.size() - 1);
 	while ("BASE64!" != buffer && !mailData.eof())
@@ -365,6 +365,8 @@ Mail::Mail(std::string data)
 		buffer += '\n';
 		bodyText += buffer;
 		getline(mailData, buffer);
+		if (".\r" == buffer)
+			break;
 		buffer = buffer.substr(0, buffer.size() - 1);
 	}
 	setBodyText(bodyText);
@@ -374,6 +376,10 @@ Mail::Mail(std::string data)
 	{
 		Attachment newAttachment;
 		getline(mailData, buffer);
+		if (buffer == "")
+		{
+			break;
+		}
 		newAttachment.setFilename(buffer.substr(buffer.find(':') + 1, buffer.find('\r') - buffer.find(':') - 1));
 		getline(mailData, buffer);
 		newAttachment.setFileType(buffer.substr(buffer.find(':') + 1, buffer.find('\r') - buffer.find(':') - 1));
