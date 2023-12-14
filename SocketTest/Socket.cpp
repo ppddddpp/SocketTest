@@ -165,6 +165,7 @@ void SMTP::sendMail(Mail mail)
 		std::cout << "Data command send comment error ";
 	}
 
+	
 	std::string ThingToSend = mail.getAllMailData("send");
 	m_SMTP_SOCKET.sendCommand(ThingToSend);
 	
@@ -286,7 +287,7 @@ void POP3::receiveMail(User& person)
 			{
 				for (int j = 0; j < person[i].getSizeOfListMail(); i++)
 				{
-					person.moveMailToFolder(person[i].getMail(j), person[i]);
+					person.moveMailToFolder(person[i].getMailFolder(j), person[i]);
 				}
 			}
 		}

@@ -70,6 +70,18 @@ int User::getAutoLoad()
 	return m_autoLoad;
 }
 
+void User::openFolder(int num)
+{
+	int numberOfMails = m_Folders[num].getSizeOfListMail();
+	for (int i = 0; i < numberOfMails; i++)
+	{
+		Mail temp = m_Folders[num].getMailFolder(i).getMail();
+		if ("Unread" == temp.getReadStatus())
+			std::cout << i + 1 << ". " << "(Unread) " << temp.getFrom() << ", " << temp.getSubject() << '\n';
+		else std::cout << i + 1 << ". " << temp.getFrom() << ", " << temp.getSubject() << '\n';
+	}
+}
+
 int User::getSizeOfFolder()
 {
 	return m_Folders.size();
@@ -90,6 +102,12 @@ UserFolder& User::goThroughFilters(MailFolder mail)
 	else if (m_Folders[0].getFolderName() != goThroughContent(toGetMail).getFolderName())
 		return goThroughContent(toGetMail);
 	return m_Folders[0];
+}
+
+std::vector<Attachment> User::openMail(int userFolderPosition, int mailPosition)
+{
+	std::cout << m_Folders[userFolderPosition].getMailFolder(mailPosition).getMailAllData("open");
+	return m_Folders[userFolderPosition].getMailFolder(mailPosition).getMail().getAllAttachments();
 }
 
 UserFolder& User::goThroughFrom(Mail mail)
@@ -252,17 +270,13 @@ User::User(std::string filename)
 void User::moveMailToFolder(MailFolder mail, UserFolder& toFolder)
 {
 	mail.setMailName(toFolder.getSizeOfListMail());
-	std::string folderPath = "./" + m_userMail + '/' + toFolder.getFolderName() + "./" + mail.getMailName();
+	std::string folderPath = "./" + m_userMail + '/' + toFolder.getFolderName() + "/" + mail.getMailName();
 	try {
 		if (!std::filesystem::exists(folderPath)) {
 			std::filesystem::create_directories(folderPath);
-			std::cout << "Folder created successfully.\n";
 			mail.mailToFolder(folderPath);
 			for (int i = 0; i < mail.getMail().getSizeOfAttachments(); i++)
 				mail.attachmentToFolder(folderPath, i);
-		}
-		else {
-			std::cout << "Folder already exists.\n";
 		}
 		////remember to add mailPath
 		//std::string mailPath = folderPath;

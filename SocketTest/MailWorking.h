@@ -24,4 +24,4 @@ class Menu
 public:
 	void start();
 };
-void display(MailWorking& test, User& person, bool& isDone);
+void display(MailWorking& test, User& person, bool& isDone, bool& connectedToPOP3);

@@ -17,7 +17,7 @@ MailFolder UserFolder::getMailAttachment(int num)
 	return {};
 }
 
-MailFolder UserFolder::getMail(int num)
+MailFolder UserFolder::getMailFolder(int num)
 {
 	return m_ListOfMail[num];
 }
@@ -60,19 +60,21 @@ void UserFolder::openMailChosen(int num)
 void UserFolder::savedFileLocally(MailFolder mail, std::string& localFilePath, std::string fileWantToSave)
 {
 	std::vector<char> fileContent = mail.getMailAttachment(fileWantToSave);
-	std::string placeToSave = localFilePath + "\\" + fileWantToSave;
-
-	std::ofstream localFile(placeToSave, std::ios::binary);
-	if (localFile.is_open()) {
-		localFile.write(fileContent.data(), fileContent.size());
-		localFile.close();
-		std::cout << "File downloaded and saved locally at: " << placeToSave << std::endl;
+	std::string placeToSave = localFilePath + '/' + fileWantToSave;
+	Mail temp;
+	std::ofstream writeFile(placeToSave, std::ios::binary);
+	std::string fileData = "";
+	for (char i : fileContent)
+		fileData += i;
+	std::vector <unsigned char> decodedFileData = temp.base64_decode(fileData);
+	for (char i : decodedFileData)
+	{
+		char buf[1] = { i };
+		writeFile.write(buf, sizeof(buf));
 	}
-	else {
-		std::cout << "Error: Cannot open the local file for writing" << std::endl;
-	}
+	writeFile.close();
+	std::cout << "File downloaded and saved locally at: " << placeToSave << std::endl;
 }
-
 
 std::string UserFolder::getWorkingUserPath()
 {

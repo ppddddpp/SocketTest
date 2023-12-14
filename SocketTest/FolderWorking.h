@@ -66,7 +66,7 @@ public:
 	std::vector<std::string> getSpamFilter();
 public:
 	MailFolder getMailAttachment(int num);
-	MailFolder getMail(int num);
+	MailFolder getMailFolder(int num);
 	std::string getMailData(int num);
 public:
 	MailFolder operator[](int num) {

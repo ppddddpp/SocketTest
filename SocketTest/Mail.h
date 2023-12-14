@@ -53,6 +53,7 @@ public:
 	std::string getAttachmentFileType(int num);
 	std::vector<char> getAttachment(std::string filename);
 	std::vector<char> getAttachment1(int num);
+	std::vector<Attachment> getAllAttachments();
 public:
 	void setFrom(std::string name);
 	void setTo(std::string name, int num);

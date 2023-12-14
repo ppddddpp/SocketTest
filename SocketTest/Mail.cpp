@@ -1,4 +1,4 @@
-#include "Mail.h"
+#include "Header.h"
 
 #pragma region Attachment
 
@@ -157,6 +157,11 @@ std::vector<char> Mail::getAttachment1(int num)
 	return m_attachments[num].getInFileContent();
 }
 
+std::vector<Attachment> Mail::getAllAttachments()
+{
+	return m_attachments;
+}
+
 void Mail::setFrom(std::string name)
 {
 	m_From = name;
@@ -215,15 +220,49 @@ void Mail::setBodyText(std::string data)
 std::string Mail::getAllMailData(std::string purpose)
 {
 	std::string ThingToSend = "";
+	if (purpose == "open" || purpose == "check" || purpose == "save") {
+		std::string AttachmentInfo = " List of attachments: \r\n";
+		std::string AttachmentAsStr = "";
+		for (int i = 0; i < getSizeOfAttachments(); i++) {
+			AttachmentInfo = getAttachmentFilename(i) + "."
+				+ getAttachmentFileType(i) + "\r\n";
+			if (!m_isRead)
+			{
+				if (purpose == "open")
+				{
+					setAsRead();
+				}
+			}
+		}
+		ThingToSend += "To: ";
+		for (std::string i : m_To)
+		{
+			ThingToSend += i + ", ";
+		}
+		ThingToSend[ThingToSend.size() - 2] = ' ';
+		ThingToSend += "\r\n";
 
+		ThingToSend += "Cc: ";
+		for (std::string i : m_CC)
+		{
+			ThingToSend += i + ", ";
+		}
+		ThingToSend[ThingToSend.size() - 2] = ' ';
+		ThingToSend += "\r\n";
+
+		ThingToSend += "From: " + m_From;
+		ThingToSend += "\r\n";
+
+		ThingToSend += getSubject();
+		ThingToSend += getTextBody();
+		return ThingToSend;
+	}
 	ThingToSend += "To: ";
 	for (std::string i : m_To)
 	{
 		ThingToSend += i + ", ";
 	}
 	ThingToSend[ThingToSend.size() - 2] = ' ';
-	//ThingToSend += "EndTo";
-	//ThingToSend[ThingToSend.size()] = ' ';
 	ThingToSend += "\r\n";
 
 	ThingToSend += "Cc: ";
@@ -232,24 +271,19 @@ std::string Mail::getAllMailData(std::string purpose)
 		ThingToSend += i + ", ";
 	}
 	ThingToSend[ThingToSend.size() - 2] = ' ';
-	//ThingToSend += "EndCC";
-	//ThingToSend[ThingToSend.size()] = ' ';
 	ThingToSend += "\r\n";
 
 	ThingToSend += "From: " + m_From;
-	//ThingToSend += "EndFrom";
 	ThingToSend += "\r\n";
 
 	ThingToSend += "Subject: " + getSubject();
-	//ThingToSend += "EndSubject";
 
 	ThingToSend += "\r\n";
 	ThingToSend += "\r\n";
 
 	ThingToSend += "Body:" + getTextBody();
-	//ThingToSend += "EndBody";
 
-	if (purpose == "send" || purpose == "check") {
+	if (purpose == "send") {
 		//send attachments
 		for (int i = 0; i < getSizeOfAttachments(); i++) {
 			std::string AttachmentInfo = "\r\nBASE64!\r\n";
@@ -265,23 +299,6 @@ std::string Mail::getAllMailData(std::string purpose)
 			}
 			AttachmentAsStr += " [ENDOFATTACHMENT]\r\n";
 			ThingToSend = ThingToSend + AttachmentInfo + AttachmentAsStr;
-		}
-	}
-	else if (purpose == "open") {
-		std::string AttachmentInfo = " List of attachments: \r\n";
-		std::string AttachmentAsStr = "";
-		for (int i = 0; i < getSizeOfAttachments(); i++) {
-			AttachmentInfo = getAttachmentFilename(i) + "."
-				+ getAttachmentFileType(i) + "\r\n";
-			setAsRead();
-		}
-	}
-	else if (purpose == "open") {
-		std::string AttachmentInfo = " List of attachments: \r\n";
-		std::string AttachmentAsStr = "";
-		for (int i = 0; i < getSizeOfAttachments(); i++) {
-			AttachmentInfo = getAttachmentFilename(i) + "."
-				+ getAttachmentFileType(i) + "\r\n";
 		}
 	}
 	return ThingToSend;

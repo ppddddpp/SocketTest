@@ -34,12 +34,13 @@ public:
 	int getAutoLoad();
 	int getSizeOfFolder();
 	UserFolder getFolder(int num);
+	void openFolder(int num);
+	std::vector<Attachment> openMail(int userFolderPosition, int mailPosition);
 public:
 	UserFolder& goThroughFilters(MailFolder mail);
 	UserFolder& goThroughFrom(Mail mail);
 	UserFolder& goThroughSubject(Mail mail);
 	UserFolder& goThroughContent(Mail mail);
-
 public:
 	User(std::string filename);
 	UserFolder& operator[](int num);

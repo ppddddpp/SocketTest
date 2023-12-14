@@ -29,8 +29,9 @@ bool MailWorking::openMail()
     return false;
 }
 
-void display(MailWorking& test, User& usertest, bool& isDone)
+void display(MailWorking& test, User& usertest, bool& isDone, bool& connectedToPOP3)
 {
+    connectedToPOP3 = false;
     while (true)
     {
         std::string choice;
@@ -162,19 +163,18 @@ void display(MailWorking& test, User& usertest, bool& isDone)
 
             test.sendMail(usertest.getServerIP().c_str(), usertest.getPortSMTP(), usertest, email);
             std::cout << std::endl;
+            connectedToPOP3 = false;
         }
 
         else if ("2" == choice)
         {
-
-            test.receiveMail(usertest.getServerIP().c_str(), usertest.getPortPOP3(), usertest);
+            if (!connectedToPOP3)
+            {
+                test.receiveMail(usertest.getServerIP().c_str(), usertest.getPortPOP3(), usertest);
+                connectedToPOP3 = true;
+            }
+            else test.getPOP3().receiveMail(usertest);
             std::cout << std::endl;
-        }
-
-        else if ("3" == choice)
-        {
-            isDone = true;
-            return;
 
             std::string buffer;
             std::cout << "Here is a list of folders in your mailbox: " << std::endl;
@@ -206,21 +206,43 @@ void display(MailWorking& test, User& usertest, bool& isDone)
                 std::cout << "Here is the list of mails in your Spam: " << std::endl;
             }
             else continue;
+            int folderNumber = std::stoi(buffer) - 1;
 
-            // for-loop
-            // list
+        openFolderAgain:
+            usertest.openFolder(folderNumber);
 
             std::cout << "Which email do you want to read: (Enter nothing to return to menu or 0 to show list again)" << std::endl;
             getline(std::cin, buffer);
+            if ("0" == buffer)
+                goto openFolderAgain;
+            if ("" == buffer)
+                continue;
             std::cout << "Email number " << buffer << "'s contents: " << std::endl;
+            int mailFolderNumber = std::stoi(buffer) - 1;
+            std::vector<Attachment> attachmentsTemp = usertest.openMail(folderNumber, mailFolderNumber);
+            int numberOfAttachments = attachmentsTemp.size();
+            if (0 != numberOfAttachments)
+            {
+                if (1 != numberOfAttachments)
+                    std::cout << "In this email, there exist " << numberOfAttachments << " attachment files, do you want to save to local computer:" << std::endl;
+                else std::cout << "In this email, there exists 1 attachment file, do you want to save to local computer: (yes or no)" << std::endl;
+                getline(std::cin, buffer);
+                if ("yes" == buffer)
+                {
+                    std::cout << "Enter your desired local file path for the downloaded attachment: ";
+                    getline(std::cin, buffer);
+                    for (int i = 0; i < numberOfAttachments; i++)
+                    {
+                        usertest.getFolder(folderNumber).savedFileLocally(usertest.getFolder(folderNumber).getMailFolder(mailFolderNumber), buffer, attachmentsTemp[i].getFilename() + "." + attachmentsTemp[i].getFileType());
+                    }
+                }
+            }
+        }
 
-            // Email data
-
-            // check for attachment files
-
-            // std::cout << "In this email, there exist(s) attachment file(s), do you want to save to local computer: << std::endl;
-
-
+        else if ("3" == choice)
+        {
+            isDone = true;
+            return;
         }
         std::cout << std::endl;
     }
@@ -232,12 +254,11 @@ void Menu::start()
     User person("config.txt");
 
     bool isDone = false;
-
-    std::thread mainDisplay(display, std::ref(test), std::ref(person), std::ref(isDone));
-
-    while (false == isDone)
+    bool connectedToPOP3 = false;
+    std::thread mainDisplay(display, std::ref(test), std::ref(person), std::ref(isDone), std::ref(connectedToPOP3));
+    int seconds = person.getAutoLoad();
+    while (false == isDone && connectedToPOP3)
     {
-        int seconds = person.getAutoLoad();
         std::this_thread::sleep_for(std::chrono::seconds(seconds));
         test.getPOP3().receiveMail(person);
     }
