@@ -17,7 +17,7 @@ MailFolder UserFolder::getMailAttachment(int num)
 	return {};
 }
 
-MailFolder UserFolder::getMailFolder(int num)
+MailFolder& UserFolder::getMailFolder(int num)
 {
 	return m_ListOfMail[num];
 }
@@ -201,7 +201,8 @@ std::string MailFolder::getMailBasicData()
 
 std::string MailFolder::getMailAllData(std::string purpose)
 {
-	return m_mail.getAllMailData(purpose);
+	std::string tempData = m_mail.getAllMailData(purpose);
+	return tempData;
 }
 
 Mail MailFolder::getMail()
@@ -212,7 +213,7 @@ Mail MailFolder::getMail()
 void MailFolder::setMailName(int count)
 {
 	std::stringstream builder;
-	builder << "(" << m_mail.getReadStatus() << ")" << " msg" << std::to_string(count);
+	builder << "msg" << std::to_string(count);
 	m_folderName = builder.str();
 }
 
@@ -228,6 +229,7 @@ std::string MailFolder::getMailName()
 
 void MailFolder::openMail()
 {
+
 	m_mail.getAllMailData("open");
 }
 

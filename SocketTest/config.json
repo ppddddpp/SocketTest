@@ -1,0 +1,30 @@
+[
+{
+  "general": {
+    "username": "Quan Nguyen <ntquan@testing.com>",
+    "password": "ahihi",
+    "mailServer": "127.0.0.1",
+    "SMTP": 2225,
+    "POP3": 3335,
+    "autoload": 10
+  },
+  "filter": [
+    {
+      "from": ["ahihi@testing.com", "ahuu@testing.com"],
+      "toFolder": "Project"
+    },
+    {
+      "subject": ["urgent", "ASAP"],
+      "toFolder": "Important"
+    },
+    {
+      "content": ["report", "meeting"],
+      "toFolder": "Work"
+    },
+    {
+      "spam": ["virus", "hack", "crack"],
+      "toFolder": "Spam"
+    }
+  ]
+}
+]

@@ -221,18 +221,15 @@ std::string Mail::getAllMailData(std::string purpose)
 {
 	std::string ThingToSend = "";
 	if (purpose == "open" || purpose == "check" || purpose == "save") {
+		if (purpose == "open")
+		{
+			setAsRead();
+		}
 		std::string AttachmentInfo = " List of attachments: \r\n";
 		std::string AttachmentAsStr = "";
 		for (int i = 0; i < getSizeOfAttachments(); i++) {
 			AttachmentInfo = getAttachmentFilename(i) + "."
 				+ getAttachmentFileType(i) + "\r\n";
-			if (!m_isRead)
-			{
-				if (purpose == "open")
-				{
-					setAsRead();
-				}
-			}
 		}
 		ThingToSend += "To: ";
 		for (std::string i : m_To)
@@ -383,7 +380,8 @@ Mail::Mail(std::string data)
 		getline(mailData, buffer);
 		std::vector<char> inFileContents;
 		getline(mailData, buffer);
-		while (" [ENDOFATTACHMENT]\r" != buffer)
+		bool foundEndOFAttach = false;
+		while (!foundEndOFAttach)
 		{
 			int size = buffer.size() - 1;
 			for (int i = 0; i < size; i++)
@@ -391,6 +389,10 @@ Mail::Mail(std::string data)
 				inFileContents.push_back(buffer[i]);
 			}
 			getline(mailData, buffer);
+			if (buffer.npos != buffer.find("[ENDOFATTACHMENT]"))
+			{
+				foundEndOFAttach = true;
+			}
 		}
 		newAttachment.setFileContent(inFileContents);
 		m_attachments.push_back(newAttachment);

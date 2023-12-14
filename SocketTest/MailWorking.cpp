@@ -257,12 +257,14 @@ void Menu::start()
     bool connectedToPOP3 = false;
     std::thread mainDisplay(display, std::ref(test), std::ref(person), std::ref(isDone), std::ref(connectedToPOP3));
     int seconds = person.getAutoLoad();
-    while (false == isDone && connectedToPOP3)
+    while (!isDone)
     {
-        std::this_thread::sleep_for(std::chrono::seconds(seconds));
-        test.getPOP3().receiveMail(person);
+        while (connectedToPOP3)
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(seconds));
+            test.getPOP3().receiveMail(person);
+        }
     }
-
     mainDisplay.join();
 }
 

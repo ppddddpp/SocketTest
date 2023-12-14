@@ -107,6 +107,7 @@ UserFolder& User::goThroughFilters(MailFolder mail)
 std::vector<Attachment> User::openMail(int userFolderPosition, int mailPosition)
 {
 	std::cout << m_Folders[userFolderPosition].getMailFolder(mailPosition).getMailAllData("open");
+	int a = 0;
 	return m_Folders[userFolderPosition].getMailFolder(mailPosition).getMail().getAllAttachments();
 }
 
@@ -275,8 +276,6 @@ void User::moveMailToFolder(MailFolder mail, UserFolder& toFolder)
 		if (!std::filesystem::exists(folderPath)) {
 			std::filesystem::create_directories(folderPath);
 			mail.mailToFolder(folderPath);
-			for (int i = 0; i < mail.getMail().getSizeOfAttachments(); i++)
-				mail.attachmentToFolder(folderPath, i);
 		}
 		////remember to add mailPath
 		//std::string mailPath = folderPath;

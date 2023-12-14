@@ -51,8 +51,9 @@ void MySocket::sendCommand(std::string command)
 
 std::string MySocket::receiveServerResponse()
 {
-	char buffer[262144];
-	int bytesRead = recv(m_socket, buffer, sizeof(buffer), 0);
+	char* buffer = new char[4194304];
+	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	int bytesRead = recv(m_socket, buffer, 4194304, 0);
 	if (bytesRead == SOCKET_ERROR) {
 		std::cout << "Cannot receive data" << std::endl;
 	}
@@ -275,6 +276,7 @@ void POP3::receiveMail(User& person)
 		std::string returnMail = "RETR " + std::to_string(i + 1) + '\r' + '\n';
 		m_POP3_SOCKET.sendCommand(returnMail);
 		serverResponse = m_POP3_SOCKET.receiveServerResponse();
+		serverResponse = serverResponse.substr(serverResponse.find("OK"));
 		Mail buffer(serverResponse);
 		listMailReceive.push_back(MailFolder(buffer));
 	}
