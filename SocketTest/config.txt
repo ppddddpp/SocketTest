@@ -7,10 +7,10 @@ POP3: 3335
 Autoload: 10
 
 Filter:
-From: ahihi@testing.com, ahuu@testing.com, ... - To folder: Project
+From: ahihi@testing.com, ahuu@testing.com - To folder: Project
 
-Subject: "urgent", "ASAP", ... - To folder: Important
+Subject: "urgent", "ASAP" - To folder: Important
 
-Content: "report", "meeting", ...  - To folder: Work
+Content: "report", "meeting" - To folder: Work
 
-Spam: "virus", "hack", "crack", ... - To folder: Spam
+Spam: "virus", "hack", "crack" - To folder: Spam

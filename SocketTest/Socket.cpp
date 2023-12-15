@@ -290,13 +290,13 @@ void POP3::receiveMail(User& person)
 		if (IsExistedMail(listMailReceive[i].getMailAllData("save"), person) == false)
 		{
 			person.goThroughFilters(listMailReceive[i]).addMailToList(listMailReceive[i]);
-			for (int k = 0; k < 5; k++)
-			{
-				for (int j = 0; j < person[k].getSizeOfListMail(); j++)
-				{
-					person.moveMailToFolder(person[k].getMailFolder(j), person[k]);
-				}
-			}
+		}
+	}
+	for (int k = 0; k < 5; k++)
+	{
+		for (int j = 0; j < person[k].getSizeOfListMail(); j++)
+		{
+			person.moveMailToFolder(person[k].getMailFolder(j), person[k]);
 		}
 	}
 	for (int i = 0; i < 5; i++)

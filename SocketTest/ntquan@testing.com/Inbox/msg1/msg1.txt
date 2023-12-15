@@ -1,7 +1,7 @@
 To: ntquan@testing.com 
-CC: khangpro216@gmail.com 
+CC: 
 From: ntquan@testing.com
-Subject: spam
+Subject: hi
 
  
-Body:hi j
+Body:hello

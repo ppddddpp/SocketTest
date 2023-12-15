@@ -389,6 +389,11 @@ User::User(std::string filename)
 				{
 					fromJsonToTxt += " " + buffer.substr(buffer.find_first_of('"') + 1, buffer.find_first_of(',') - buffer.find_first_of('"') - 2) + ",";
 					buffer = buffer.substr(buffer.find(',') + 1);
+					if (buffer.npos != buffer.find(','))
+					{
+						fromJsonToTxt += " " + buffer.substr(buffer.find_first_of('"') + 1, buffer.find_last_of('"') - buffer.find_first_of('"') - 1);
+						break;
+					}
 				}
 			}
 			else
@@ -398,6 +403,11 @@ User::User(std::string filename)
 				{
 					fromJsonToTxt += " " + buffer.substr(buffer.find_first_of('"'), buffer.find_first_of(',') - buffer.find_first_of('"')) + ",";
 					buffer = buffer.substr(buffer.find(',') + 1);
+					if (buffer.npos != buffer.find(','))
+					{
+						fromJsonToTxt += " " + buffer.substr(buffer.find_first_of('"'), buffer.find_last_of('"') - buffer.find_first_of('"') + 1);
+						break;
+					}
 				}
 			}
 			std::getline(inFile, buffer);

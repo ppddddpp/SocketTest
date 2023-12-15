@@ -111,16 +111,15 @@ void UserFolder::addFilter(std::string filter)
 			m_fromFilter.push_back(filter.substr(startOfEmailAddr + 1, 
 				filter.find_first_of(',') - startOfEmailAddr - 1));
 			filter = filter.substr(filter.find_first_of(',') + 1);
-			if (filter.npos == filter.find(','))
+			if (filter.npos != filter.find(','))
 			{
-				int startOfEmailAddr = filter.find_first_of(' ');
-				if ("..." != filter.substr(startOfEmailAddr + 1,
-					filter.find_first_of('-') - startOfEmailAddr - 2)
-					&& filter.npos != filter.find('@'))
-				{
-					m_fromFilter.push_back(filter.substr(startOfEmailAddr + 1,
-						filter.find_first_of('-') - startOfEmailAddr - 2));
-				}
+				filter = filter.substr(filter.find_first_of(',') + 1);
+			}
+			else
+			{
+				filter = filter.substr(filter.find_first_not_of(' '), filter.find('-') - filter.find_first_not_of(' ') - 1);
+				m_fromFilter.push_back(filter);
+				break;
 			}
 		}
 	}
@@ -131,12 +130,13 @@ void UserFolder::addFilter(std::string filter)
 			int startOfEmailAddr = filter.find_first_of('"');
 			m_subjectFilter.push_back(filter.substr(startOfEmailAddr + 1,
 				filter.find_first_of(',') - startOfEmailAddr - 2));
-			filter = filter.substr(filter.find_first_of(',') + 1);
+			filter = filter.substr(filter.find(',') + 1);
 			if (filter.npos == filter.find(','))
 			{
-				int startOfEmailAddr = filter.find_first_of(' ');
+				int startOfEmailAddr = filter.find_first_of('"');
 				m_subjectFilter.push_back(filter.substr(startOfEmailAddr + 1,
 					filter.find_last_of('"') - startOfEmailAddr - 1));
+				break;
 			}
 		}
 	}
@@ -145,14 +145,15 @@ void UserFolder::addFilter(std::string filter)
 		while (filter.npos != filter.find('"'))
 		{
 			int startOfEmailAddr = filter.find_first_of('"');
-			m_subjectFilter.push_back(filter.substr(startOfEmailAddr + 1,
+			m_contentFilter.push_back(filter.substr(startOfEmailAddr + 1,
 				filter.find_first_of(',') - startOfEmailAddr - 2));
 			filter = filter.substr(filter.find_first_of(',') + 1);
 			if (filter.npos == filter.find(','))
 			{
-				int startOfEmailAddr = filter.find_first_of(' ');
+				int startOfEmailAddr = filter.find_first_of('"');
 				m_contentFilter.push_back(filter.substr(startOfEmailAddr + 1,
 					filter.find_last_of('"') - startOfEmailAddr - 1));
+				break;
 			}
 		}
 	}
@@ -163,12 +164,13 @@ void UserFolder::addFilter(std::string filter)
 			int startOfEmailAddr = filter.find_first_of('"');
 			m_spamFilter.push_back(filter.substr(startOfEmailAddr + 1,
 				filter.find_first_of(',') - startOfEmailAddr - 2));
-			filter = filter.substr(filter.find_first_of(',') + 1);
+			filter = filter.substr(filter.find_first_of(',') + 2);
 			if (filter.npos == filter.find(','))
 			{
-				int startOfEmailAddr = filter.find_first_of(' ');
-				m_fromFilter.push_back(filter.substr(startOfEmailAddr + 1,
+				int startOfEmailAddr = filter.find_first_of('"');
+				m_spamFilter.push_back(filter.substr(startOfEmailAddr + 1,
 					filter.find_last_of('"') - startOfEmailAddr - 1));
+				break;
 			}
 		}
 	}
