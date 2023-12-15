@@ -1,9 +1,12 @@
 ﻿#include "MailWorking.h"
 
-bool MailWorking::sendMail(const char* IP, int PORT, User person, Mail mail)
+bool MailWorking::sendMail(const char* IP, int PORT, User person, Mail mail, bool connected)
 {
-    if (p_SMTP_Client.login(IP, PORT, person) == false) {
-        return false;
+    if (!connected)
+    {
+        if (p_SMTP_Client.login(IP, PORT, person) == false) {
+            return false;
+        }
     }
     p_SMTP_Client.sendMail(mail);
     return true;
@@ -25,6 +28,7 @@ void MailWorking::closeSMTPconnection()
 
 void display(MailWorking& test, User& usertest, bool& isDone, bool& connectedToPOP3)
 {
+    bool connectedToSMTP = false;
     connectedToPOP3 = false;
     while (true)
     {
@@ -155,22 +159,13 @@ void display(MailWorking& test, User& usertest, bool& isDone, bool& connectedToP
             
             Mail email(usertest.getUserMail(), to, cc, bcc, newSubject, newContent, Attas);
 
-            test.sendMail(usertest.getServerIP().c_str(), usertest.getPortSMTP(), usertest, email);
+            test.sendMail(usertest.getServerIP().c_str(), usertest.getPortSMTP(), usertest, email, connectedToSMTP);
             std::cout << std::endl;
-            connectedToPOP3 = false;
             test.closeSMTPconnection();
         }
 
         else if ("2" == choice)
         {
-            if (!connectedToPOP3)
-            {
-                test.receiveMail(usertest.getServerIP().c_str(), usertest.getPortPOP3(), usertest);
-                connectedToPOP3 = true;
-            }
-            else test.getPOP3().receiveMail(usertest);
-            std::cout << std::endl;
-
             std::string buffer;
             std::cout << "Here is a list of folders in your mailbox: " << std::endl;
             std::cout << "1. Inbox" << std::endl;
@@ -288,6 +283,7 @@ void Menu::start()
         fileToRead = "config.json";
     }
     User person(fileToRead);
+    test.receiveMail(person.getServerIP().c_str(), person.getPortPOP3(), person);
     bool isDone = false;
     bool connectedToPOP3 = false;
     std::thread mainDisplay(display, std::ref(test), std::ref(person), std::ref(isDone), std::ref(connectedToPOP3));

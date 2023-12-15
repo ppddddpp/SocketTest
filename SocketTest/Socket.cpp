@@ -63,7 +63,9 @@ std::string MySocket::receiveServerResponse()
 	else {
 		buffer[bytesRead] = '\0';
 	}
-	return std::string(buffer);
+	std::string temp(buffer);
+	delete[] buffer;
+	return temp;
 }
 
 #pragma endregion MySocket
@@ -165,14 +167,14 @@ void SMTP::sendMail(Mail mail)
 	if (serverResponse.substr(0, 3) != "354") {
 		std::cout << "Data command send comment error " << std::endl;
 	}
-
 	
 	std::string ThingToSend = mail.getAllMailData("send");
+	ThingToSend += "\r\n.\r\n";
 	m_SMTP_SOCKET.sendCommand(ThingToSend);
 	
-	m_SMTP_SOCKET.sendCommand("\r\n");
-	std::string EndMailDot = ".\r\n";
-	m_SMTP_SOCKET.sendCommand(EndMailDot);
+	//m_SMTP_SOCKET.sendCommand("\r\n");
+	//std::string EndMailDot = ".\r\n";
+	//m_SMTP_SOCKET.sendCommand(EndMailDot);
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 	if (serverResponse.find("accepted") == serverResponse.npos) {
 		std::cout << "Send unsuccessful" << std::endl;
@@ -279,11 +281,14 @@ void POP3::receiveMail(User& person)
 	for (int i = 0; i < numOfMails; i++)
 	{
 		std::string returnMail = "RETR " + std::to_string(i + 1) + '\r' + '\n';
-		m_POP3_SOCKET.sendCommand(returnMail);
-		serverResponse = m_POP3_SOCKET.receiveServerResponse();
-		serverResponse = serverResponse.substr(serverResponse.find("OK"));
-		Mail buffer(serverResponse);
-		listMailReceive.push_back(MailFolder(buffer));
+		if (i < numOfMails)
+		{
+			m_POP3_SOCKET.sendCommand(returnMail);
+			serverResponse = m_POP3_SOCKET.receiveServerResponse();
+			serverResponse = serverResponse.substr(serverResponse.find("OK"));
+			Mail buffer(serverResponse);
+			listMailReceive.push_back(MailFolder(buffer));
+		}
 	}
 
 	for (int i = 0; i < listMailReceive.size(); i++) {
@@ -291,14 +296,15 @@ void POP3::receiveMail(User& person)
 		{
 			person.goThroughFilters(listMailReceive[i]).addMailToList(listMailReceive[i]);
 		}
-	}
-	for (int k = 0; k < 5; k++)
-	{
-		for (int j = 0; j < person[k].getSizeOfListMail(); j++)
+		for (int k = 0; k < 5; k++)
 		{
-			person.moveMailToFolder(person[k].getMailFolder(j), person[k]);
+			for (int j = 0; j < person[k].getSizeOfListMail(); j++)
+			{
+				person.moveMailToFolder(person[k].getMailFolder(j), person[k]);
+			}
 		}
 	}
+
 	for (int i = 0; i < 5; i++)
 	{
 		int numberOfMails = person.getSizeOfFolder(i);
