@@ -78,11 +78,11 @@ bool SMTP::login(const char* IP, int PORT, User person)
 	std::string serverResponse;
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 	if (serverResponse.substr(0, 3) != "220") {
-		std::cerr << "Server no response" << std::endl;
+		std::cerr << "Server didn't response" << std::endl;
 		return false;
 	}
 	//Working with EHLO
-	std::string domain = '[' + person.getServerIP() + ']'; // one should be exchange to the testing domain
+	std::string domain = "[" + person.getServerIP() + "]";
 	std::string ehloCommand = "EHLO " + domain + "\r\n";
 	m_SMTP_SOCKET.sendCommand(ehloCommand);
 
@@ -127,7 +127,7 @@ void SMTP::sendMail(Mail mail)
 	m_SMTP_SOCKET.sendCommand("MAIL FROM: " + senderMail + "\r\n");
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 	if (serverResponse.substr(0, 3) != "250") {
-
+		std::cout << "From " + senderMail + " error! " << std::endl;
 	}
 
 	std::string BCC_ReceiverMail = "";
@@ -139,7 +139,7 @@ void SMTP::sendMail(Mail mail)
 		m_SMTP_SOCKET.sendCommand("RCPT TO: " + To_ReceiverMail + "\r\n");
 		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 		if (serverResponse.substr(0, 3) != "250") {
-			std::cout << "TO" + To_ReceiverMail + " error";
+			std::cout << "TO " + To_ReceiverMail + " error!" << std::endl;
 		}
 	}
 
@@ -148,7 +148,7 @@ void SMTP::sendMail(Mail mail)
 		m_SMTP_SOCKET.sendCommand("RCPT TO: " + CC_ReceiverMail + "\r\n");
 		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 		if (serverResponse.substr(0, 3) != "250") {
-			std::cout << "CC" + CC_ReceiverMail + " error";
+			std::cout << "CC" + CC_ReceiverMail + " error" << std::endl;
 		}
 	}
 	for (int i = 0; i < mail.getBCCSize(); i++) {
@@ -156,14 +156,14 @@ void SMTP::sendMail(Mail mail)
 		m_SMTP_SOCKET.sendCommand("RCPT TO: " + BCC_ReceiverMail + "\r\n");
 		serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 		if (serverResponse.substr(0, 3) != "250") {
-			std::cout << "BCC" + BCC_ReceiverMail + " error";
+			std::cout << "BCC" + BCC_ReceiverMail + " error" << std::endl;
 		}
 	}
 	
 	m_SMTP_SOCKET.sendCommand("DATA\r\n");
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 	if (serverResponse.substr(0, 3) != "354") {
-		std::cout << "Data command send comment error ";
+		std::cout << "Data command send comment error " << std::endl;
 	}
 
 	
@@ -175,9 +175,9 @@ void SMTP::sendMail(Mail mail)
 	m_SMTP_SOCKET.sendCommand(EndMailDot);
 	serverResponse = m_SMTP_SOCKET.receiveServerResponse();
 	if (serverResponse.find("accepted") == serverResponse.npos) {
-		std::cout << "Send unsuccessful";
+		std::cout << "Send unsuccessful" << std::endl;
 	}
-	else  std::cout << "Send successful";
+	else  std::cout << "Send successful" << std::endl;
 	return;
 }
 
@@ -202,28 +202,28 @@ bool POP3::login(const char* IP, int PORT, User person)
 
 	serverResponse = m_POP3_SOCKET.receiveServerResponse();
 	if (isOk(serverResponse) == false) {
-		std::cout << "Server is not ready yet";
+		std::cout << "Server is not ready yet" << std::endl;
 		return false;
 	}
 
 	m_POP3_SOCKET.sendCommand("CAPA\r\n");
 	serverResponse = m_POP3_SOCKET.receiveServerResponse();
 	if (isOk(serverResponse) == false) {
-		std::cout << "Wrong username";
+		std::cout << "Wrong username" << std::endl;
 		return false;
 	}
 	
 	m_POP3_SOCKET.sendCommand("USER " + person.getUserMail() + "\r\n");
 	serverResponse = m_POP3_SOCKET.receiveServerResponse();
 	if (isOk(serverResponse) == false) {
-		std::cout << "Wrong username";
+		std::cout << "Wrong username" << std::endl;
 		return false;
 	}
 
 	m_POP3_SOCKET.sendCommand("PASS " + person.getPassword() + "\r\n");
 	serverResponse = m_POP3_SOCKET.receiveServerResponse();
 	if (isOk(serverResponse) == false) {
-		std::cout << "Wrong password";
+		std::cout << "Wrong password" << std::endl;
 		return false;
 	}
 	return true;
@@ -251,7 +251,7 @@ void POP3::receiveMail(User& person)
 	m_POP3_SOCKET.sendCommand("STAT\r\n");
 	serverResponse = m_POP3_SOCKET.receiveServerResponse();
 	if (isOk(serverResponse) == false) {
-		std::cout << "Problem with STAT";
+		std::cout << "Problem with STAT" << std::endl;
 		return;
 	}
 
@@ -260,14 +260,14 @@ void POP3::receiveMail(User& person)
 	m_POP3_SOCKET.sendCommand("LIST\r\n");
 	serverResponse = m_POP3_SOCKET.receiveServerResponse();
 	if (isOk(serverResponse) == false) {
-		std::cout << "List error";
+		std::cout << "List error" << std::endl;
 		return;
 	}
 
 	m_POP3_SOCKET.sendCommand("UIDL\r\n");
 	serverResponse = m_POP3_SOCKET.receiveServerResponse();
 	if (isOk(serverResponse) == false) {
-		std::cout << "UIDL error";
+		std::cout << "UIDL error" << std::endl;
 		return;
 	}
 
@@ -285,11 +285,11 @@ void POP3::receiveMail(User& person)
 		if (IsExistedMail(listMailReceive[i].getMailAllData("save"), person) == false)
 		{
 			person.goThroughFilters(listMailReceive[i]).addMailToList(listMailReceive[i]);
-			for (int k = 0; k < 5; k++)
+			for (int i = 0; i < 5; i++)
 			{
-				for (int j = 0; j < person[k].getSizeOfListMail(); j++)
+				for (int j = 0; j < person[i].getSizeOfListMail(); i++)
 				{
-					person.moveMailToFolder(person[k].getMailFolder(j), person[k]);
+					person.moveMailToFolder(person[i].getMailFolder(j), person[i]);
 				}
 			}
 		}
