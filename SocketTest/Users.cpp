@@ -365,17 +365,22 @@ User::User(std::string filename)
 		}
 
 		// Filters
-		std::getline(inFile, buffer);
-		std::getline(inFile, buffer);
 		while (!inFile.eof())
 		{
-			std::string fromJsonToTxt;
-			std::getline(inFile, buffer);
-			if (buffer.npos != buffer.find(']'))
+			while (!inFile.eof()
+				&& buffer.npos == buffer.find("From")
+				&& buffer.npos == buffer.find("Subject")
+				&& buffer.npos == buffer.find("Content")
+				&& buffer.npos == buffer.find("Spam"))
+			{
+				std::getline(inFile, buffer);
+			}
+
+			if (inFile.eof())
 			{
 				break;
 			}
-			std::getline(inFile, buffer);
+			std::string fromJsonToTxt;
 			fromJsonToTxt = buffer.substr(buffer.find_first_of('"') + 1, buffer.find_first_of(':') - buffer.find_first_of('"') - 2) + ":";
 			if (fromJsonToTxt.npos != fromJsonToTxt.find("From"))
 			{

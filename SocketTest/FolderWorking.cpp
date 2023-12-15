@@ -78,9 +78,6 @@ void MailFolder::extractMailDataDownloaded(std::string data)
 	
 	std::stringstream issTo(localWorkingData);
 
-	
-
-
 	std::vector<char>attachmentDataExtracted;
 	int countFile = -1;
 	size_t startPosAttachment = localWorkingData.find("[STARTOFATTACHMENT]" + '\r\n');
@@ -118,7 +115,8 @@ void UserFolder::addFilter(std::string filter)
 			{
 				int startOfEmailAddr = filter.find_first_of(' ');
 				if ("..." != filter.substr(startOfEmailAddr + 1,
-					filter.find_first_of('-') - startOfEmailAddr - 2))
+					filter.find_first_of('-') - startOfEmailAddr - 2)
+					&& filter.npos != filter.find('@'))
 				{
 					m_fromFilter.push_back(filter.substr(startOfEmailAddr + 1,
 						filter.find_first_of('-') - startOfEmailAddr - 2));
