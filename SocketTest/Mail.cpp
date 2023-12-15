@@ -470,10 +470,6 @@ std::string Mail::to_base64(std::vector<char>& data)
 
 		octet_1 = static_cast<uint8_t>(data[i++]);
 
-		/*if (i < data.size()) {
-			octet_1 = static_cast<uint8_t>(data[i++]);
-		}*/
-
 		if (i < data.size()) {
 			octet_2 = static_cast<uint8_t>(data[i++]);
 		}

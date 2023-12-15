@@ -16,18 +16,8 @@ bool MailWorking::receiveMail(const char* IP, int PORT, User& person)
     }
 
     p_POP3_Client.receiveMail(person);
-    //UserFolder folderWorking = person.getFolder(1);
-    //std::string PathWantToSave = "";
-    //std::string wantToSaveFile = "";
-    //folderWorking.savedFileLocally(folderWorking.getMail(0), PathWantToSave, wantToSaveFile);
-    //explain: the number is the order of file want to save ( the second file)
 }
 
-bool MailWorking::openMail()
-{
-
-    return false;
-}
 
 void display(MailWorking& test, User& usertest, bool& isDone, bool& connectedToPOP3)
 {

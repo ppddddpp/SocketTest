@@ -1,6 +1,9 @@
 #pragma once
 #include <winsock.h>
 #include <iostream>
+#include <thread>
+#include <future>
+#include <chrono>
 #include "Users.h"
 
 class MySocket

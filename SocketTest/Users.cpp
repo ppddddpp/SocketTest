@@ -392,19 +392,6 @@ void User::moveMailToFolder(MailFolder mail, UserFolder& toFolder)
 			std::filesystem::create_directories(folderPath);
 			mail.mailToFolder(folderPath);
 		}
-		////remember to add mailPath
-		//std::string mailPath = folderPath;
-
-		//std::filesystem::path mailFilePath = mailPath;
-		//std::string fileName = mailFilePath.filename().string();
-
-		//// Construct the destination path
-		//std::filesystem::path destinationPath = folderPath;
-		//destinationPath /= mail.getMailName();
-
-		//// Copy the file to the destination folder
-		//std::filesystem::copy(mailPath, destinationPath,
-		//	std::filesystem::copy_options::overwrite_existing);
 	}
 	catch (const std::filesystem::filesystem_error& e) {
 		std::cout << "Error creating folder: " << e.what() << "\n";

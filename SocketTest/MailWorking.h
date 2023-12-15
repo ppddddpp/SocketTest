@@ -14,7 +14,6 @@ protected:
 public:
 	bool sendMail(const char* IP, int PORT, User person, Mail mail);
 	bool receiveMail(const char* IP, int PORT,User& person);
-	bool openMail();
 	POP3& getPOP3();
 	
 };
