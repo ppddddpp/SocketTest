@@ -82,12 +82,12 @@ void User::openFolder(int num)
 	}
 }
 
-int User::getSizeOfFolder()
+int User::getSizeOfFolder(int i)
 {
-	return m_Folders.size();
+	return m_Folders[i].getSizeOfListMail();
 }
 
-UserFolder User::getFolder(int num)
+UserFolder& User::getFolder(int num)
 {
 	return m_Folders[num];
 }

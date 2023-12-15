@@ -18,6 +18,10 @@ bool MailWorking::receiveMail(const char* IP, int PORT, User& person)
     p_POP3_Client.receiveMail(person);
 }
 
+void MailWorking::closeSMTPconnection()
+{
+    p_SMTP_Client.disconnectServer();
+}
 
 void display(MailWorking& test, User& usertest, bool& isDone, bool& connectedToPOP3)
 {
@@ -154,6 +158,7 @@ void display(MailWorking& test, User& usertest, bool& isDone, bool& connectedToP
             test.sendMail(usertest.getServerIP().c_str(), usertest.getPortSMTP(), usertest, email);
             std::cout << std::endl;
             connectedToPOP3 = false;
+            test.closeSMTPconnection();
         }
 
         else if ("2" == choice)
@@ -224,6 +229,35 @@ void display(MailWorking& test, User& usertest, bool& isDone, bool& connectedToP
                     for (int i = 0; i < numberOfAttachments; i++)
                     {
                         usertest.getFolder(folderNumber).savedFileLocally(usertest.getFolder(folderNumber).getMailFolder(mailFolderNumber), buffer, attachmentsTemp[i].getFilename() + "." + attachmentsTemp[i].getFileType());
+                    }
+                }
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                int numberOfMails = usertest.getSizeOfFolder(i);
+                for (int j = 0; j < numberOfMails; j++)
+                {
+                    if ("Read" == usertest.getFolder(i).getMailFolder(j).getMail().getReadStatus())
+                    {
+                        std::string readStatus;
+                        std::string filePath = "./" + usertest.getUserMail() + "/" + usertest.getFolder(i).getFolderName() + "/"
+                            + "msg" + std::to_string(j + 1) + "/" + "msg" + std::to_string(j + 1) + ".txt";
+                        std::ifstream inFile(filePath);
+                        bool stopAdd = false;
+                        while (!inFile.eof())
+                        {
+                            std::getline(inFile, readStatus);
+                            if ("READ" == readStatus)
+                            {
+                                stopAdd = true;
+                            }
+                        }
+                        inFile.close();
+                        if (!stopAdd)
+                        {
+                            std::ofstream outFile(filePath, std::ios::app);
+                            outFile << "READ";
+                        }
                     }
                 }
             }

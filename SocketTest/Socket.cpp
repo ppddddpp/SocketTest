@@ -181,6 +181,11 @@ void SMTP::sendMail(Mail mail)
 	return;
 }
 
+void SMTP::disconnectServer()
+{
+	m_SMTP_SOCKET.disconnectServer();
+}
+
 #pragma endregion SMTP
 
 #pragma region POP3
@@ -231,7 +236,7 @@ bool POP3::login(const char* IP, int PORT, User person)
 
 bool POP3::IsExistedMail(std::string data, User person)
 {
-	for (int i = 0; i < person.getSizeOfFolder(); i++) {
+	for (int i = 0; i < 5; i++) {
 		UserFolder localWorkingFolder = person.getFolder(i);
 		for (int j = 0; j < localWorkingFolder.getSizeOfListMail(); j++) {
 			if (data == localWorkingFolder[j].getMailAllData("check")) 
@@ -290,6 +295,28 @@ void POP3::receiveMail(User& person)
 				for (int j = 0; j < person[k].getSizeOfListMail(); j++)
 				{
 					person.moveMailToFolder(person[k].getMailFolder(j), person[k]);
+				}
+			}
+		}
+	}
+	for (int i = 0; i < 5; i++)
+	{
+		int numberOfMails = person.getSizeOfFolder(i);
+		for (int j = 0; j < numberOfMails; j++)
+		{
+			std::string readStatus;
+			std::string filePath = "./" + person.getUserMail() + "/" + person.getFolder(i).getFolderName() + "/"
+				+ "msg" + std::to_string(j + 1) + "/" + "msg" + std::to_string(j + 1) + ".txt";
+			std::ifstream inFile(filePath);
+			if (inFile.is_open())
+			{
+				while (!inFile.eof())
+				{
+					std::getline(inFile, readStatus);
+					if ("READ" == readStatus)
+					{
+						person.getFolder(i).getMailFolder(j).getMail().setAsRead();
+					}
 				}
 			}
 		}

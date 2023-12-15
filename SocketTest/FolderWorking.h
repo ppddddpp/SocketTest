@@ -18,7 +18,7 @@ public:
 	std::string getMailBasicData();
 	std::string getMailName();
 	std::string getMailAllData(std::string purpose);
-	Mail getMail();
+	Mail& getMail();
 public:
 	void setMailName(int count);
 	void setMailAttachment(std::vector<char> attachmentName, int num);

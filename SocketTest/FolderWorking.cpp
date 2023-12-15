@@ -193,7 +193,7 @@ std::string MailFolder::getMailAllData(std::string purpose)
 	return tempData;
 }
 
-Mail MailFolder::getMail()
+Mail& MailFolder::getMail()
 {
 	return m_mail;
 }

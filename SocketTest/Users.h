@@ -32,8 +32,8 @@ public:
 	int getPortSMTP();
 	int getPortPOP3();
 	int getAutoLoad();
-	int getSizeOfFolder();
-	UserFolder getFolder(int num);
+	int getSizeOfFolder(int i);
+	UserFolder& getFolder(int num);
 	void openFolder(int num);
 	std::vector<Attachment> openMail(int userFolderPosition, int mailPosition);
 public:

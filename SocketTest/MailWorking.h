@@ -15,7 +15,7 @@ public:
 	bool sendMail(const char* IP, int PORT, User person, Mail mail);
 	bool receiveMail(const char* IP, int PORT,User& person);
 	POP3& getPOP3();
-	
+	void closeSMTPconnection();
 };
 
 class Menu

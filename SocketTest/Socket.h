@@ -27,6 +27,7 @@ private:
 public:
 	bool login(const char* IP, int PORT, User person);
 	void sendMail(Mail mail);
+	void disconnectServer();
 };
 
 class POP3
