@@ -25,7 +25,7 @@ Debug in your IDE.
 Configuration
 There is an example configuration you can change for suittable
 
-Server reference:
+Server reference ( cre Mr Nguyen Thanh Quan from HCMUS )
 https://github.com/eugenehr/test-mail-server/releases/download/1.0/test-mail-server-1.0.jar
 Source code: https://github.com/eugenehr/test-mail-server/
 Language: Java
