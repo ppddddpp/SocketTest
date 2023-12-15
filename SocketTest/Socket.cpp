@@ -82,7 +82,7 @@ bool SMTP::login(const char* IP, int PORT, User person)
 		return false;
 	}
 	//Working with EHLO
-	std::string domain = "[127.0.0.1]"; // one should be exchange to the testing domain
+	std::string domain = '[' + person.getServerIP() + ']'; // one should be exchange to the testing domain
 	std::string ehloCommand = "EHLO " + domain + "\r\n";
 	m_SMTP_SOCKET.sendCommand(ehloCommand);
 
@@ -285,11 +285,11 @@ void POP3::receiveMail(User& person)
 		if (IsExistedMail(listMailReceive[i].getMailAllData("save"), person) == false)
 		{
 			person.goThroughFilters(listMailReceive[i]).addMailToList(listMailReceive[i]);
-			for (int i = 0; i < 5; i++)
+			for (int k = 0; k < 5; k++)
 			{
-				for (int j = 0; j < person[i].getSizeOfListMail(); i++)
+				for (int j = 0; j < person[k].getSizeOfListMail(); j++)
 				{
-					person.moveMailToFolder(person[i].getMailFolder(j), person[i]);
+					person.moveMailToFolder(person[k].getMailFolder(j), person[k]);
 				}
 			}
 		}

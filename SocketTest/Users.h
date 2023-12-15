@@ -41,6 +41,7 @@ public:
 	UserFolder& goThroughFrom(Mail mail);
 	UserFolder& goThroughSubject(Mail mail);
 	UserFolder& goThroughContent(Mail mail);
+	UserFolder& goThroughAll(Mail mail);
 public:
 	User(std::string filename);
 	UserFolder& operator[](int num);

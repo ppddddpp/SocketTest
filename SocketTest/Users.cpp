@@ -101,6 +101,8 @@ UserFolder& User::goThroughFilters(MailFolder mail)
 		return goThroughSubject(toGetMail);
 	else if (m_Folders[0].getFolderName() != goThroughContent(toGetMail).getFolderName())
 		return goThroughContent(toGetMail);
+	else if (m_Folders[0].getFolderName() != goThroughAll(toGetMail).getFolderName())
+		return goThroughAll(toGetMail);
 	return m_Folders[0];
 }
 
@@ -169,6 +171,25 @@ UserFolder& User::goThroughContent(Mail mail)
 				if (content.npos != content.find(contentFilters[j]))
 					return m_Folders[i];
 			}
+		}
+	}
+	return m_Folders[0];
+}
+
+
+UserFolder& User::goThroughAll(Mail mail)
+{
+	std::string content = mail.getSubject() + mail.getTextBody();
+	std::vector<std::string> contentFilters = m_Folders[4].getSpamFilter();
+	int size = contentFilters.size();
+	if (0 == size)
+		return m_Folders[0];
+	else
+	{
+		for (int j = 0; j < size; j++)
+		{
+			if (content.npos != content.find(contentFilters[j]))
+				return m_Folders[4];
 		}
 	}
 	return m_Folders[0];
@@ -392,19 +413,6 @@ void User::moveMailToFolder(MailFolder mail, UserFolder& toFolder)
 			std::filesystem::create_directories(folderPath);
 			mail.mailToFolder(folderPath);
 		}
-		////remember to add mailPath
-		//std::string mailPath = folderPath;
-
-		//std::filesystem::path mailFilePath = mailPath;
-		//std::string fileName = mailFilePath.filename().string();
-
-		//// Construct the destination path
-		//std::filesystem::path destinationPath = folderPath;
-		//destinationPath /= mail.getMailName();
-
-		//// Copy the file to the destination folder
-		//std::filesystem::copy(mailPath, destinationPath,
-		//	std::filesystem::copy_options::overwrite_existing);
 	}
 	catch (const std::filesystem::filesystem_error& e) {
 		std::cout << "Error creating folder: " << e.what() << "\n";
