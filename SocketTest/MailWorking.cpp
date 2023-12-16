@@ -29,7 +29,6 @@ void MailWorking::closeSMTPconnection()
 void display(MailWorking* test, User& usertest, bool& isDone, bool& connectedToPOP3)
 {
     bool connectedToSMTP = false;
-    connectedToPOP3 = false;
     while (true)
     {
         std::string choice;
@@ -284,7 +283,7 @@ void Menu::start()
     User person(fileToRead);
     test->receiveMail(person.getServerIP().c_str(), person.getPortPOP3(), person);
     bool isDone = false;
-    bool connectedToPOP3 = false;
+    bool connectedToPOP3 = true;
     std::thread mainDisplay(display, std::ref(test), std::ref(person), std::ref(isDone), std::ref(connectedToPOP3));
     int seconds = person.getAutoLoad();
     while (!isDone)

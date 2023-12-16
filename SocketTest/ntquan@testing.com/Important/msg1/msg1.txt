@@ -1,8 +1,7 @@
 To: ntquan@testing.com 
 CC: 
 From: ntquan@testing.com
-Subject: viru ASAP
+Subject: ASAP
 
  
 Body:2
-READ
