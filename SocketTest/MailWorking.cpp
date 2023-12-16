@@ -161,9 +161,6 @@ void display(MailWorking* test, User& usertest, bool& isDone, bool& connectedToP
 
             test->sendMail(usertest.getServerIP().c_str(), usertest.getPortSMTP(), usertest, email, connectedToSMTP);
             std::cout << std::endl;
-            test->closeSMTPconnection();
-            delete test;
-            test = new MailWorking();
         }
 
         else if ("2" == choice)
