@@ -26,7 +26,7 @@ void MailWorking::closeSMTPconnection()
     p_SMTP_Client.disconnectServer();
 }
 
-void display(MailWorking& test, User& usertest, bool& isDone, bool& connectedToPOP3)
+void display(MailWorking* test, User& usertest, bool& isDone, bool& connectedToPOP3)
 {
     bool connectedToSMTP = false;
     connectedToPOP3 = false;
@@ -159,9 +159,11 @@ void display(MailWorking& test, User& usertest, bool& isDone, bool& connectedToP
             
             Mail email(usertest.getUserMail(), to, cc, bcc, newSubject, newContent, Attas);
 
-            test.sendMail(usertest.getServerIP().c_str(), usertest.getPortSMTP(), usertest, email, connectedToSMTP);
+            test->sendMail(usertest.getServerIP().c_str(), usertest.getPortSMTP(), usertest, email, connectedToSMTP);
             std::cout << std::endl;
-            test.closeSMTPconnection();
+            test->closeSMTPconnection();
+            delete test;
+            test = new MailWorking();
         }
 
         else if ("2" == choice)
@@ -270,7 +272,7 @@ void display(MailWorking& test, User& usertest, bool& isDone, bool& connectedToP
 
 void Menu::start()
 {
-    MailWorking test;
+    MailWorking* test = new MailWorking();
     std::string fileToRead;
     //std::ifstream testFile("config.txt");
     //if (testFile.is_open())
@@ -283,7 +285,7 @@ void Menu::start()
         fileToRead = "config.json";
     }
     User person(fileToRead);
-    test.receiveMail(person.getServerIP().c_str(), person.getPortPOP3(), person);
+    test->receiveMail(person.getServerIP().c_str(), person.getPortPOP3(), person);
     bool isDone = false;
     bool connectedToPOP3 = false;
     std::thread mainDisplay(display, std::ref(test), std::ref(person), std::ref(isDone), std::ref(connectedToPOP3));
@@ -293,7 +295,7 @@ void Menu::start()
         while (connectedToPOP3)
         {
             std::this_thread::sleep_for(std::chrono::seconds(seconds));
-            test.getPOP3().receiveMail(person);
+            test->getPOP3().receiveMail(person);
         }
     }
     mainDisplay.join();
