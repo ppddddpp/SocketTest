@@ -1,7 +1,0 @@
-To: ntquan@testing.com 
-CC: 2 
-From: ntquan@testing.com
-Subject: 
-
- 
-Body:virus

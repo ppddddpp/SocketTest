@@ -1,7 +1,0 @@
-To: ntquan@testing.com 
-CC: 
-From: ntquan@testing.com
-Subject: ASAP
-
- 
-Body:2

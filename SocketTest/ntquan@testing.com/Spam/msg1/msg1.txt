@@ -1,8 +1,0 @@
-To: ntquan@testing.com 
-CC: ntquan@testing.com 
-From: ntquan@testing.com
-Subject: hello
-
- 
-Body:spam virus
-READ
